@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>月の満ち欠け アシスト - 月と地球と太陽</title>
+    <title>月の満ち欠け 学習 - 月と地球と太陽</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- Tone.js (効果音用) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800&display=swap" rel="stylesheet">
     <!-- FontAwesome Icons -->
@@ -62,8 +60,8 @@
             </div>
             <div>
                 <h1 class="text-lg md:text-xl font-bold tracking-wide text-amber-300 flex items-center gap-2">
-                    <ruby>月<rt>つき</rt></ruby>の<ruby>満<rt>み</rt></ruby>ち<ruby>欠<rt>か</rt></ruby>け アシスト
-                </h1>
+    <ruby>月<rt>つき</rt></ruby>の<ruby>満<rt>み</rt></ruby>ち<ruby>欠<rt>か</rt></ruby>け <ruby>学習<rt>がくしゅう</rt></ruby>
+</h1>
                 <p class="text-xs text-slate-400 hidden sm:block">〜 月と地球と太陽のふしぎをつかもう 〜</p>
             </div>
         </div>
@@ -103,24 +101,36 @@
                 
                 <!-- 宇宙視点 (3D Three.js Visualizer) -->
                 <div class="lg:col-span-7 bg-slate-900/80 border border-slate-800 rounded-2xl p-3 flex flex-col relative overflow-hidden shadow-xl min-h-[300px]">
-                    <div class="absolute top-3 left-3 z-10 flex items-center gap-2 bg-slate-950/70 border border-slate-800 px-3 py-1.5 rounded-xl backdrop-blur-md">
-                        <i class="fa-solid fa-rocket text-indigo-400"></i>
-                        <span class="text-xs font-bold"><ruby>宇宙<rt>うちゅう</rt></ruby>からの<ruby>視点<rt>してん</rt></ruby>（ドラッグで<ruby>回<rt>まわ</rt></ruby>せるよ）</span>
+                    <!-- ラベル（文言短縮・重なり防止） -->
+                    <div class="absolute top-3 left-3 z-10 flex items-center gap-1.5 bg-slate-950/80 border border-slate-800 px-2.5 py-1 rounded-xl backdrop-blur-md shadow">
+                        <i class="fa-solid fa-arrows-up-down-left-right text-indigo-400 text-xs"></i>
+                        <span class="text-[11px] font-bold text-slate-200">ドラッグで視点を移動</span>
                     </div>
 
-                    <!-- 凡例/ガイド表示ボタン -->
-                    <div class="absolute top-3 right-3 z-10 flex gap-2">
-                        <button onclick="toggleSunRays()" id="btnRays" class="bg-slate-950/70 hover:bg-slate-800 border border-slate-800 text-xs px-2.5 py-1.5 rounded-xl transition flex items-center gap-1 text-amber-300">
-                            <i class="fa-solid fa-sun"></i> 太陽光ガイド
+                    <!-- 視点プリセットボタン -->
+                    <div class="absolute top-3 right-3 z-10 flex flex-wrap justify-end gap-1.5 max-w-[340px] sm:max-w-none">
+                        <button onclick="setPresetView('sun-left')" class="bg-slate-950/80 hover:bg-slate-800 border border-slate-800 text-[11px] px-2 py-1 rounded-lg transition flex items-center gap-1 text-amber-300 shadow">
+                            <i class="fa-solid fa-arrow-left"></i> 太陽左
                         </button>
-                        <button onclick="resetCamera()" class="bg-slate-950/70 hover:bg-slate-800 border border-slate-800 text-xs px-2.5 py-1.5 rounded-xl transition flex items-center gap-1 text-slate-300">
-                            <i class="fa-solid fa-arrow-rotate-left"></i> 視点リセット
+                        <button onclick="setPresetView('sun-right')" class="bg-slate-950/80 hover:bg-slate-800 border border-slate-800 text-[11px] px-2 py-1 rounded-lg transition flex items-center gap-1 text-amber-300 shadow">
+                            <i class="fa-solid fa-arrow-right"></i> 太陽右
+                        </button>
+                        <button onclick="setPresetView('top-left')" class="bg-slate-950/80 hover:bg-slate-800 border border-slate-800 text-[11px] px-2 py-1 rounded-lg transition flex items-center gap-1 text-cyan-300 shadow">
+                            <i class="fa-solid fa-arrow-down"></i> 真上(太陽左)
+                        </button>
+                        <button onclick="setPresetView('top-right')" class="bg-slate-950/80 hover:bg-slate-800 border border-slate-800 text-[11px] px-2 py-1 rounded-lg transition flex items-center gap-1 text-cyan-300 shadow">
+                            <i class="fa-solid fa-arrow-down"></i> 真上(太陽右)
+                        </button>
+                        <button onclick="toggleSunRays()" id="btnRays" class="bg-slate-950/80 hover:bg-slate-800 border border-slate-800 text-[11px] px-2 py-1 rounded-lg transition flex items-center gap-1 text-amber-300 shadow">
+                            <i class="fa-solid fa-sun"></i> 光ガイド
+                        </button>
+                        <button onclick="resetCamera()" class="bg-slate-950/80 hover:bg-slate-800 border border-slate-800 text-[11px] px-2 py-1 rounded-lg transition flex items-center gap-1 text-slate-300 shadow">
+                            <i class="fa-solid fa-arrow-rotate-left"></i> リセット
                         </button>
                     </div>
 
                     <!-- Three.js Canvas Container -->
                     <div id="canvas3d-container" class="w-full flex-1 rounded-xl overflow-hidden relative cursor-grab active:cursor-grabbing">
-                        <!-- Canvas is injected via JS -->
                         <div id="loadingOverlay" class="absolute inset-0 flex items-center justify-center bg-slate-950 z-20">
                             <div class="flex flex-col items-center gap-2 text-amber-400">
                                 <i class="fa-solid fa-spinner fa-spin text-3xl"></i>
@@ -133,15 +143,16 @@
                     <div class="mt-2 flex flex-wrap items-center justify-between text-xs bg-slate-950/60 p-2 rounded-xl border border-slate-800/80 gap-2">
                         <div class="flex items-center gap-2">
                             <span class="bg-indigo-900/50 text-indigo-300 px-2 py-0.5 rounded border border-indigo-700/50">
-                                <ruby>公転<rt>こうてん</rt></ruby>: <span id="moonAgeVal" class="font-bold text-amber-300">0.0</span> <ruby>日目<rt>にちめ</rt></ruby>
+                                <ruby>月齢<rt>げつれい</rt></ruby>: <span id="moonAgeVal" class="font-bold text-amber-300">0.0</span> <ruby>日目<rt>にちめ</rt></ruby>
                             </span>
                             <span class="bg-emerald-900/50 text-emerald-300 px-2 py-0.5 rounded border border-emerald-700/50">
-                                <ruby>地球<rt>ちきゅう</rt></ruby>の<ruby>時刻<rt>じこく</rt></ruby>: <span id="timeVal" class="font-bold text-amber-300">18:00</span> (<ruby>夕方<rt>ゆうがた</rt></ruby>)
+                                <ruby>地球<rt>ちきゅう</rt></ruby>の<ruby>時刻<rt>じこく</rt></ruby>: <span id="timeVal" class="font-bold text-amber-300">18:00</span> (<span id="timeNameVal"><ruby>夕方<rt>ゆうがた</rt></ruby></span>)
                             </span>
                         </div>
                         <div class="text-slate-400 text-[11px] flex items-center gap-2">
                             <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-yellow-400 inline-block"></span> 太陽</span>
                             <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span> 地球</span>
+                            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span> 観測者(人)</span>
                             <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-slate-300 inline-block"></span> 月</span>
                         </div>
                     </div>
@@ -161,9 +172,8 @@
                         </span>
                     </div>
 
-                    <!-- 月のリアルタイムレンダリング (2D/3D Canvas) -->
+                    <!-- 月のリアルタイムレンダリング -->
                     <div class="my-4 flex flex-col items-center justify-center relative">
-                        <!-- 背景の夜空/夕空グラデーション -->
                         <div id="skyBg" class="w-48 h-48 md:w-56 md:h-56 rounded-full bg-slate-950 border-4 border-slate-800 flex items-center justify-center relative shadow-2xl overflow-hidden transition-colors duration-500">
                             <!-- 星の背景 -->
                             <div class="absolute inset-0 opacity-60 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
@@ -171,7 +181,7 @@
                             <!-- 2D Canvas で描く満ち欠け月 -->
                             <canvas id="moonPhaseCanvas" width="200" height="200" class="w-36 h-36 md:w-44 md:h-44 z-10 drop-shadow-[0_0_15px_rgba(253,224,71,0.3)]"></canvas>
 
-                            <!-- 地平線ライン (夕方・夜などで変化) -->
+                            <!-- 地平線ライン -->
                             <div id="horizonLine" class="absolute bottom-0 inset-x-0 h-10 bg-emerald-950/40 border-t border-emerald-500/30 flex items-center justify-center text-[10px] text-emerald-300/80 font-bold">
                                 地平線（地面）
                             </div>
@@ -197,7 +207,7 @@
                 </div>
             </div>
 
-            <!-- コントロールパネル (操作エリア) -->
+            <!-- コントロールパネル -->
             <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 flex flex-col gap-4 shadow-lg">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     
@@ -234,13 +244,14 @@
                                 <span id="timeDisplay" class="text-sm font-black">18:00</span>
                             </span>
                         </div>
-                        <input id="timeSlider" type="range" min="0" max="23.5" step="0.5" value="18" 
+                        <input id="timeSlider" type="range" min="0" max="24" step="0.5" value="18" 
                                class="w-full h-2.5 bg-slate-800 rounded-lg appearance-none cursor-pointer">
                         <div class="flex justify-between text-[10px] text-slate-400 px-1 font-bold">
+                            <button onclick="setTimeVal(0)" class="hover:text-emerald-300">夜中 0時</button>
                             <button onclick="setTimeVal(6)" class="hover:text-emerald-300">朝 6時</button>
                             <button onclick="setTimeVal(12)" class="hover:text-emerald-300">昼 12時</button>
                             <button onclick="setTimeVal(18)" class="hover:text-emerald-300">夕 18時</button>
-                            <button onclick="setTimeVal(0)" class="hover:text-emerald-300">夜中 0時</button>
+                            <button onclick="setTimeVal(24)" class="hover:text-emerald-300">夜中 24時</button>
                         </div>
                     </div>
 
@@ -263,7 +274,7 @@
 
                     <div class="text-xs text-slate-400 flex items-center gap-2">
                         <i class="fa-solid fa-circle-info text-blue-400 text-sm"></i>
-                        <span><ruby>月<rt>つき</rt></ruby>は地球のまわりを<b>約29.5日</b>かけて1周（<ruby>公転<rt>こうてん</rt></ruby>）します。</span>
+                        <span><ruby>月<rt>つき</rt></ruby>が新月から次の新月まで満ち欠けする周期（朔望月）は<b>約29.5日</b>です。</span>
                     </div>
                 </div>
             </div>
@@ -279,13 +290,13 @@
                             <i class="fa-solid fa-book-bookmark"></i>
                             <span><ruby>月<rt>つき</rt></ruby>の<ruby>形<rt>かたち</rt></ruby>と名前ずかん</span>
                         </h2>
-                        <p class="text-xs text-slate-400 mt-1">カードをタップすると、その月齢の場所にワープしてじっくり観察できるよ！</p>
+                        <p class="text-xs text-slate-400 mt-1">カードをタップすると、その月齢の場所に移動して観察できます！</p>
                     </div>
                 </div>
 
                 <!-- 図鑑グリッド -->
                 <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <!-- Dynamic Gallery Cards will be injected by JS -->
+                    <!-- Dynamic Cards -->
                 </div>
             </div>
         </section>
@@ -308,10 +319,9 @@
 
                 <!-- クイズ本体コンテナ -->
                 <div id="quizContainer" class="flex flex-col gap-6 my-2">
-                    <!-- クイズ問題カード -->
                     <div class="bg-slate-950/80 border border-slate-800 p-5 rounded-2xl flex flex-col gap-3">
                         <div class="flex items-center justify-between text-xs text-indigo-400 font-bold">
-                            <span id="quizQuestionNum">だい 1 もん</span>
+                            <span id="quizQuestionNum">第 1 問</span>
                             <span class="bg-indigo-950 px-2 py-0.5 rounded border border-indigo-800 text-[10px]">基礎レベル</span>
                         </div>
                         <p id="quizQuestionText" class="text-base md:text-lg font-bold text-slate-100 leading-relaxed">
@@ -319,12 +329,10 @@
                         </p>
                     </div>
 
-                    <!-- 選択肢ボタン群 -->
                     <div id="quizOptions" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <!-- Dynamic choices -->
                     </div>
 
-                    <!-- 解説・正解フィードバック -->
                     <div id="quizFeedback" class="hidden bg-slate-800/90 border border-slate-700 p-4 rounded-xl flex flex-col gap-2">
                         <div id="feedbackResult" class="font-black text-lg flex items-center gap-2">
                             <!-- 正解 or 不正解 -->
@@ -339,7 +347,7 @@
                     </div>
                 </div>
 
-                <!-- クイズ完了画面 (初期非表示) -->
+                <!-- クイズ完了画面 -->
                 <div id="quizComplete" class="hidden flex-col items-center justify-center py-8 text-center gap-4">
                     <div class="text-5xl text-amber-300 font-black animate-bounce">
                         <i class="fa-solid fa-trophy"></i>
@@ -359,7 +367,7 @@
     </main>
 
     <footer class="bg-slate-950 border-t border-slate-900 py-3 px-4 text-center text-xs text-slate-500">
-        <p>© 2026 月の満ち欠け アシスト - 小学生・中学生の理科受検学習対応</p>
+        <p>© 2026 SOU ayu 月の満ち欠け学習  - 小学生・中学生の理科学習向け</p>
     </footer>
 
     <script>
@@ -373,18 +381,16 @@
             speed: 1.0,
             showRays: true,
             rubyEnabled: true,
-            soundEnabled: true,
             currentTab: 'observe'
         };
 
-        // 月相データリスト（全月齢範囲を連続してカバー）
+        // 月相データリスト
         const MOON_PHASES = [
             {
                 name: "新月",
                 ruby: "しんげつ",
                 alias: "朔（さく）",
                 ageMin: 0, ageMax: 1.5,
-                canvasRatio: 0,
                 direction: "太陽と同じ方向",
                 visibleTime: "昼間（見えません）",
                 explanation: "太陽と同じ方向にあるため、地球からは月のかげ側しか見えず、空に姿が見えません。",
@@ -395,7 +401,6 @@
                 ruby: "みかづき",
                 alias: "眉月",
                 ageMin: 1.5, ageMax: 5.5,
-                canvasRatio: 0.25,
                 direction: "夕方：西の空低いところ",
                 visibleTime: "夕方（日の入り後すぐ）",
                 explanation: "太陽が沈んだ直後の夕方、西の低い空に細く輝いて見えます。右側が光っています。",
@@ -406,10 +411,9 @@
                 ruby: "じょうげんのつき",
                 alias: "半月（右半分）",
                 ageMin: 5.5, ageMax: 9.5,
-                canvasRatio: 0.5,
                 direction: "夕方：南の空 / 深夜：西に沈む",
                 visibleTime: "昼前〜深夜0時頃",
-                explanation: "夕方6時ごろに「南の空」に高く見えます。右側半分が明るく輝いています。弓を張った形に見えるのが名前の由来です。",
+                explanation: "夕方6時ごろに「南の空」に高く見えます。右側半分が明るく輝いています。弓に弦（つる）を張ったような形（まっすぐな側が弦）に見えるのが名前の由来です。",
                 quizIcon: "🌓"
             },
             {
@@ -417,7 +421,6 @@
                 ruby: "じゅうさんやのつき",
                 alias: "満月手前",
                 ageMin: 9.5, ageMax: 13.5,
-                canvasRatio: 0.75,
                 direction: "夕方〜深夜：南東〜南の空",
                 visibleTime: "夕方〜夜半すぎ",
                 explanation: "満月になる直前の月で、日本では昔からとても美しく縁起が良い月とされています。",
@@ -428,21 +431,19 @@
                 ruby: "まんげつ",
                 alias: "望（ぼう）",
                 ageMin: 13.5, ageMax: 16.5,
-                canvasRatio: 1.0,
                 direction: "夕方：東 / 夜中：南 / 朝：西",
                 visibleTime: "夕方（18時）〜翌朝（6時）一晩中",
-                explanation: "太陽とちょうど反対側に来るため、まるごと丸く光って見えます。夕方東から登り、真夜中に南の空に一番高く輝きます。",
+                explanation: "太陽とちょうど反対側に来るため、まるごと丸く光って見えます。夕方東から昇り、真夜中に南の空に一番高く輝きます。",
                 quizIcon: "🌕"
             },
             {
                 name: "十六夜の月",
                 ruby: "いざよいのつき",
-                alias: "満月すぎ・立待月",
+                alias: "満月すぎ",
                 ageMin: 16.5, ageMax: 20.5,
-                canvasRatio: -0.75,
                 direction: "夜：東の空 / 朝：南西の空",
                 visibleTime: "夜遅く〜翌朝",
-                explanation: "満月を過ぎて少しだけ右側から欠け始めた月です。夕方より少し遅れて東の空からあがってきます。",
+                explanation: "満月を過ぎて少しだけ右側から欠け始めた月です。夕方より少し遅れて東の空からのぼってきます。",
                 quizIcon: "🌖"
             },
             {
@@ -450,7 +451,6 @@
                 ruby: "かげんのつき",
                 alias: "半月（左半分）",
                 ageMin: 20.5, ageMax: 24.5,
-                canvasRatio: -0.5,
                 direction: "夜中：東の空 / 朝：南の空",
                 visibleTime: "夜中0時〜昼前",
                 explanation: "夜中0時ごろ東の空からのぼり、朝6時ごろ南の空に高く見えます。左側半分が光っています。",
@@ -461,10 +461,9 @@
                 ruby: "ありあけのつき",
                 alias: "明け方の細い月",
                 ageMin: 24.5, ageMax: 28.5,
-                canvasRatio: -0.25,
                 direction: "明け方：東の空低いところ",
                 visibleTime: "明け方（日の出前）",
-                explanation: "夜が明けるころ、東の低い空に細く輝く月です。左側がカミソリのように細く光ります。",
+                explanation: "夜が明けるころ、東の低い空に細く輝く月です。左側が細く光ります。",
                 quizIcon: "🌘"
             },
             {
@@ -472,7 +471,6 @@
                 ruby: "しんげつ",
                 alias: "朔（さく）",
                 ageMin: 28.5, ageMax: 29.6,
-                canvasRatio: 0,
                 direction: "太陽と同じ方向",
                 visibleTime: "昼間（見えません）",
                 explanation: "太陽と同じ方向に戻り、再び地球からは影の側しか見えなくなります。",
@@ -495,10 +493,10 @@
                 exp: "満月は太陽と真反対にあるため、太陽が真下（真夜中）にある「夜中0時」に南の空で一番高く見えます。"
             },
             {
-                q: "月が地球のまわりを1周（公転）するのにかかる日数は、およそ何日でしょうか？",
+                q: "月が新月から満月を経てふたたび新月になるまでの周期（朔望月）はおよそ何日でしょうか？",
                 options: ["約 1 日", "約 7 日", "約 29.5 日", "約 365 日"],
                 correct: 2,
-                exp: "月は約29.5日かけて地球のまわりを1周（公転）し、新月から満月を経てふたたび新月に戻ります。"
+                exp: "月が新月から次の新月まで満ち欠けする周期（朔望月）は約29.5日です。（※地球のまわりを回る公転周期は約27.3日です）"
             },
             {
                 q: "「上弦の月」と「下弦の月」の光っている部分の違いとして正しいものはどれでしょうか？",
@@ -520,81 +518,56 @@
         ];
 
         /* ==========================================================================
-           2. Audio (Tone.js) 効果音処理
-           ========================================================================== */
-        let synth;
-        function initAudio() {
-            if (!synth && window.Tone) {
-                synth = new Tone.Synth().toDestination();
-            }
-        }
-
-        function playSound(type) {
-            try {
-                initAudio();
-                if (!synth) return;
-                if (type === 'click') {
-                    synth.triggerAttackRelease("C5", "8n");
-                } else if (type === 'correct') {
-                    const now = Tone.now();
-                    synth.triggerAttackRelease("G4", "8n", now);
-                    synth.triggerAttackRelease("C5", "8n", now + 0.1);
-                } else if (type === 'wrong') {
-                    synth.triggerAttackRelease("C3", "4n");
-                }
-            } catch (e) {
-                // Audio silent fallback
-            }
-        }
-
-        /* ==========================================================================
-           3. Three.js 3D 宇宙グラフィックエンジン
+           2. Three.js 3D 宇宙グラフィックエンジン
            ========================================================================== */
         let scene, camera, renderer;
         let sunMesh, earthGroup, earthMesh, moonMesh, moonOrbitLine, sunRaysGroup, observerMarker;
         let isDragging3D = false;
         let previousMousePosition = { x: 0, y: 0 };
 
+        let currentCamAngle = Math.PI / 2;
+        let currentCamY = 26;
+        let currentCamXZRadius = 32;
+
+        let targetCamAngle = Math.PI / 2;
+        let targetCamY = 26;
+        let targetCamXZRadius = 32;
+
+        let isAnimatingToPreset = false;
+
         function init3D() {
             const container = document.getElementById('canvas3d-container');
             const width = container.clientWidth;
             const height = container.clientHeight || 320;
 
-            // シーン作成
             scene = new THREE.Scene();
 
-            // カメラ配置 (斜め上からの俯瞰)
             camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-            camera.position.set(0, 26, 32);
-            camera.lookAt(0, 0, 0);
+            applyCameraTransform();
 
-            // レンダラー設定
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setSize(width, height);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             renderer.shadowMap.enabled = true;
             container.appendChild(renderer.domElement);
 
-            // --- 1. 太陽 (Sun) ---
-            // 太陽は左側 (-X方向) に大きく配置
+            // 1. 太陽
             const sunGeo = new THREE.SphereGeometry(4, 32, 32);
             const sunMat = new THREE.MeshBasicMaterial({ color: 0xffcc00 });
             sunMesh = new THREE.Mesh(sunGeo, sunMat);
             sunMesh.position.set(-35, 0, 0);
             scene.add(sunMesh);
 
-            // 太陽光（Directional Light）
             const sunLight = new THREE.DirectionalLight(0xffffff, 1.8);
             sunLight.position.set(-35, 0, 0);
             sunLight.target.position.set(0, 0, 0);
             scene.add(sunLight);
             scene.add(sunLight.target);
 
-            // 環境光 (少しだけ影側を見やすくする)
             const ambientLight = new THREE.AmbientLight(0x222233, 0.3);
             scene.add(ambientLight);
 
-            // --- 太陽光線ガイド (視覚的矢印) ---
+            // 太陽光線ガイド
             sunRaysGroup = new THREE.Group();
             for (let z = -12; z <= 12; z += 6) {
                 const rayGeo = new THREE.BufferGeometry().setFromPoints([
@@ -614,30 +587,85 @@
             }
             scene.add(sunRaysGroup);
 
-            // --- 2. 地球 (Earth) ---
-            earthGroup = new THREE.Group(); // 自転軸・観察者ピンまとめ
+            // 2. 地球
+            earthGroup = new THREE.Group();
             
+            const earthCanvas = document.createElement('canvas');
+            earthCanvas.width = 512;
+            earthCanvas.height = 256;
+            const eCtx = earthCanvas.getContext('2d');
+            
+            eCtx.fillStyle = '#2563eb';
+            eCtx.fillRect(0, 0, 512, 256);
+            
+            eCtx.fillStyle = '#16a34a';
+            const continents = [
+                {x: 100, y: 100, rx: 60, ry: 35},
+                {x: 170, y: 130, rx: 35, ry: 25},
+                {x: 320, y: 100, rx: 50, ry: 40},
+                {x: 340, y: 180, rx: 30, ry: 45},
+                {x: 220, y: 170, rx: 35, ry: 35},
+                {x: 440, y: 160, rx: 40, ry: 25}
+            ];
+            continents.forEach(c => {
+                eCtx.beginPath();
+                eCtx.ellipse(c.x, c.y, c.rx, c.ry, 0, 0, Math.PI * 2);
+                eCtx.fill();
+            });
+
+            eCtx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+            eCtx.lineWidth = 2;
+            for (let x = 0; x <= 512; x += 64) {
+                eCtx.beginPath();
+                eCtx.moveTo(x, 0);
+                eCtx.lineTo(x, 256);
+                eCtx.stroke();
+            }
+
+            const earthTexture = new THREE.CanvasTexture(earthCanvas);
             const earthGeo = new THREE.SphereGeometry(3.2, 32, 32);
-            // 簡易地球テクスチャのプロシージャルカラー描画 (Phong material)
             const earthMat = new THREE.MeshPhongMaterial({
-                color: 0x2277ff,
-                emissive: 0x051122,
-                specular: 0x333333,
-                shininess: 15
+                map: earthTexture,
+                specular: 0x111111,
+                shininess: 10
             });
             earthMesh = new THREE.Mesh(earthGeo, earthMat);
             earthGroup.add(earthMesh);
 
-            // 地球の「人/観測者」ピン (北半球・中緯度/赤道)
-            const obsGeo = new THREE.ConeGeometry(0.4, 1.2, 8);
-            const obsMat = new THREE.MeshBasicMaterial({ color: 0xff3366 });
-            observerMarker = new THREE.Mesh(obsGeo, obsMat);
-            observerMarker.position.set(0, 3.4, 0);
+            // 自転軸
+            const axisGeo = new THREE.CylinderGeometry(0.06, 0.06, 9, 8);
+            const axisMat = new THREE.MeshBasicMaterial({ color: 0xfbbf24 });
+            const axisMesh = new THREE.Mesh(axisGeo, axisMat);
+            earthGroup.add(axisMesh);
+
+            // 観測者ピン
+            const obsGroup = new THREE.Group();
+            const obsBodyGeo = new THREE.ConeGeometry(0.35, 1.1, 8);
+            const obsMat = new THREE.MeshBasicMaterial({ color: 0xf43f5e });
+            const obsMesh = new THREE.Mesh(obsBodyGeo, obsMat);
+            obsMesh.position.y = 0.55;
+            obsGroup.add(obsMesh);
+
+            const headGeo = new THREE.SphereGeometry(0.28, 16, 16);
+            const headMat = new THREE.MeshBasicMaterial({ color: 0xfde047 });
+            const headMesh = new THREE.Mesh(headGeo, headMat);
+            headMesh.position.y = 1.2;
+            obsGroup.add(headMesh);
+
+            const earthR = 3.2;
+            const lat = 35 * (Math.PI / 180);
+            const yPos = earthR * Math.sin(lat);
+            const xzR = earthR * Math.cos(lat);
+
+            obsGroup.position.set(-xzR, yPos, 0);
+            obsGroup.rotation.z = - (Math.PI / 2 - lat);
+
+            observerMarker = obsGroup;
             earthGroup.add(observerMarker);
 
             scene.add(earthGroup);
 
-            // --- 3. 月の軌道リング (Orbit Line) ---
+            // 3. 軌道リング
             const orbitRadius = 14;
             const orbitGeo = new THREE.RingGeometry(orbitRadius - 0.1, orbitRadius + 0.1, 64);
             const orbitMat = new THREE.MeshBasicMaterial({
@@ -650,7 +678,7 @@
             moonOrbitLine.rotation.x = Math.PI / 2;
             scene.add(moonOrbitLine);
 
-            // --- 4. 月 (Moon) ---
+            // 4. 月
             const moonGeo = new THREE.SphereGeometry(1.2, 32, 32);
             const moonMat = new THREE.MeshPhongMaterial({
                 color: 0xdddddd,
@@ -660,7 +688,7 @@
             moonMesh = new THREE.Mesh(moonGeo, moonMat);
             scene.add(moonMesh);
 
-            // マウスドラッグでカメラ回転制御
+            // ドラッグ操作
             const dom = renderer.domElement;
             dom.addEventListener('mousedown', (e) => {
                 isDragging3D = true;
@@ -669,25 +697,10 @@
             window.addEventListener('mouseup', () => isDragging3D = false);
             window.addEventListener('mousemove', (e) => {
                 if (!isDragging3D) return;
-                const deltaX = e.clientX - previousMousePosition.x;
-                const deltaY = e.clientY - previousMousePosition.y;
-
-                // カメラのY軸回転
-                const radius = Math.sqrt(camera.position.x ** 2 + camera.position.z ** 2);
-                let angle = Math.atan2(camera.position.z, camera.position.x);
-                angle -= deltaX * 0.008;
-
-                camera.position.x = radius * Math.cos(angle);
-                camera.position.z = radius * Math.sin(angle);
-
-                // Y位置の高度微調整
-                camera.position.y = Math.max(5, Math.min(45, camera.position.y + deltaY * 0.1));
-
-                camera.lookAt(0, 0, 0);
+                handleCameraDrag(e.clientX - previousMousePosition.x, e.clientY - previousMousePosition.y);
                 previousMousePosition = { x: e.clientX, y: e.clientY };
             });
 
-            // タッチ操作対応
             dom.addEventListener('touchstart', (e) => {
                 if (e.touches.length === 1) {
                     isDragging3D = true;
@@ -697,29 +710,64 @@
             window.addEventListener('touchend', () => isDragging3D = false);
             window.addEventListener('touchmove', (e) => {
                 if (!isDragging3D || e.touches.length !== 1) return;
-                const deltaX = e.touches[0].clientX - previousMousePosition.x;
-                const deltaY = e.touches[0].clientY - previousMousePosition.y;
-
-                const radius = Math.sqrt(camera.position.x ** 2 + camera.position.z ** 2);
-                let angle = Math.atan2(camera.position.z, camera.position.x);
-                angle -= deltaX * 0.008;
-
-                camera.position.x = radius * Math.cos(angle);
-                camera.position.z = radius * Math.sin(angle);
-                camera.position.y = Math.max(5, Math.min(45, camera.position.y + deltaY * 0.1));
-
-                camera.lookAt(0, 0, 0);
+                handleCameraDrag(e.touches[0].clientX - previousMousePosition.x, e.touches[0].clientY - previousMousePosition.y);
                 previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
             });
 
-            // ローディング表示消去
             document.getElementById('loadingOverlay').classList.add('hidden');
-
-            // リサイズイベント対応
             window.addEventListener('resize', onWindowResize);
-
-            // アニメーションループ開始
             animate3D();
+        }
+
+        function handleCameraDrag(deltaX, deltaY) {
+            isAnimatingToPreset = false;
+            let rawAngle = currentCamAngle - deltaX * 0.008;
+            currentCamAngle = Math.atan2(Math.sin(rawAngle), Math.cos(rawAngle));
+            currentCamY = Math.max(5, Math.min(44, currentCamY + deltaY * 0.12));
+            currentCamXZRadius = 32;
+
+            targetCamAngle = currentCamAngle;
+            targetCamY = currentCamY;
+            targetCamXZRadius = currentCamXZRadius;
+        }
+
+        function applyCameraTransform() {
+            if (isAnimatingToPreset) {
+                currentCamAngle += (targetCamAngle - currentCamAngle) * 0.18;
+                currentCamY += (targetCamY - currentCamY) * 0.18;
+                currentCamXZRadius += (targetCamXZRadius - currentCamXZRadius) * 0.18;
+
+                if (Math.abs(targetCamAngle - currentCamAngle) < 0.001 &&
+                    Math.abs(targetCamY - currentCamY) < 0.01) {
+                    isAnimatingToPreset = false;
+                }
+            }
+
+            camera.position.x = currentCamXZRadius * Math.cos(currentCamAngle);
+            camera.position.z = currentCamXZRadius * Math.sin(currentCamAngle);
+            camera.position.y = currentCamY;
+            camera.lookAt(0, 0, 0);
+        }
+
+        function setPresetView(type) {
+            isAnimatingToPreset = true;
+            if (type === 'sun-left') {
+                targetCamAngle = Math.PI / 2;
+                targetCamY = 20;
+                targetCamXZRadius = 32;
+            } else if (type === 'sun-right') {
+                targetCamAngle = -Math.PI / 2;
+                targetCamY = 20;
+                targetCamXZRadius = 32;
+            } else if (type === 'top-left') {
+                targetCamAngle = Math.PI / 2;
+                targetCamY = 42;
+                targetCamXZRadius = 0.5;
+            } else if (type === 'top-right') {
+                targetCamAngle = -Math.PI / 2;
+                targetCamY = 42;
+                targetCamXZRadius = 0.5;
+            }
         }
 
         function onWindowResize() {
@@ -733,13 +781,13 @@
         }
 
         function resetCamera() {
-            playSound('click');
-            camera.position.set(0, 26, 32);
-            camera.lookAt(0, 0, 0);
+            isAnimatingToPreset = true;
+            targetCamAngle = Math.PI / 2;
+            targetCamY = 26;
+            targetCamXZRadius = 32;
         }
 
         function toggleSunRays() {
-            playSound('click');
             state.showRays = !state.showRays;
             sunRaysGroup.visible = state.showRays;
             const btn = document.getElementById('btnRays');
@@ -753,31 +801,25 @@
         }
 
         /* ==========================================================================
-           4. 3D位置計算と連動ロジック
+           3. 3D位置計算と連動ロジック
            ========================================================================== */
         function update3DPositions() {
             if (!moonMesh || !earthGroup) return;
 
             const orbitRadius = 14;
-
-            // ① 月の公転角度 (月齢 0.0 = 太陽と一直線(-X軸方向))
-            // 太陽が -X 方向にあるので、月齢0の時、月は (-orbitRadius, 0, 0)
             const moonAngle = (state.moonAge / 29.5) * Math.PI * 2;
             
-            // 反時計回りに公転 (上空から見て)
             moonMesh.position.x = -orbitRadius * Math.cos(moonAngle);
             moonMesh.position.z = orbitRadius * Math.sin(moonAngle);
 
-            // ② 地球の自転角度 (時刻 18:00 = 太陽が西に沈む＝太陽と直角)
-            // 時刻 12:00 = 太陽に向く (-X方向)
             const timeAngle = ((state.timeHour - 12) / 24) * Math.PI * 2;
-            earthGroup.rotation.y = -timeAngle;
+            earthGroup.rotation.y = timeAngle;
         }
 
         function animate3D() {
             requestAnimationFrame(animate3D);
+            applyCameraTransform();
 
-            // 自動アニメーション進行
             if (state.isPlaying) {
                 state.moonAge += 0.05 * state.speed;
                 if (state.moonAge >= 29.5) {
@@ -787,7 +829,6 @@
                 updateAllViews();
             }
 
-            // 太陽の微かな拍動
             if (sunMesh) {
                 const time = Date.now() * 0.002;
                 sunMesh.scale.setScalar(1 + Math.sin(time) * 0.03);
@@ -797,7 +838,7 @@
         }
 
         /* ==========================================================================
-           5. 2D 満ち欠け描画 Engine (Canvas)
+           4. 2D 満ち欠け描画 Engine (Canvas)
            ========================================================================== */
         function drawMoonPhaseCanvas() {
             const canvas = document.getElementById('moonPhaseCanvas');
@@ -811,13 +852,11 @@
 
             ctx.clearRect(0, 0, w, h);
 
-            // 月齢 (0 〜 29.5) から見た位相角 θ (0 〜 2π)
             const phaseAngle = (state.moonAge / 29.5) * Math.PI * 2;
             const cosP = Math.cos(phaseAngle);
             const bulgeWidth = Math.abs(cosP) * r;
             const darkColor = '#1e293b';
 
-            // ベースの球（全体を影色にする）
             ctx.beginPath();
             ctx.arc(cx, cy, r, 0, Math.PI * 2);
             ctx.fillStyle = darkColor;
@@ -826,7 +865,6 @@
             ctx.lineWidth = 2;
             ctx.stroke();
 
-            // 輝く基本色（明るい黄色グラデーション）
             const litGrad = ctx.createLinearGradient(cx - r, cy, cx + r, cy);
             litGrad.addColorStop(0, '#fef08a');
             litGrad.addColorStop(1, '#fde047');
@@ -834,17 +872,9 @@
             ctx.save();
             ctx.beginPath();
             ctx.arc(cx, cy, r, 0, Math.PI * 2);
-            ctx.clip(); // 月の円の中にクリップ
+            ctx.clip();
 
-            /* 
-               【天文学的に正確な2D月の満ち欠け描画アルゴリズム】
-               1. 月齢 0.0 〜 7.375 (新月 → 上弦): 右側が三日月状に光る (右半円LIGHT + 右半楕円DARK)
-               2. 月齢 7.375 〜 14.75 (上弦 → 満月): 右半円LIGHT + 左半楕円LIGHT (膨らみ)
-               3. 月齢 14.75 〜 22.125 (満月 → 下弦): 左半円LIGHT + 右半楕円LIGHT (膨らみ)
-               4. 月齢 22.125 〜 29.5 (下弦 → 新月): 左側が有明月状に光る (左半円LIGHT + 左半楕円DARK)
-            */
             if (state.moonAge >= 0 && state.moonAge <= 7.375) {
-                // 1. 新月 -> 上弦 (右側三日月)
                 ctx.beginPath();
                 ctx.arc(cx, cy, r, -Math.PI / 2, Math.PI / 2, false);
                 ctx.fillStyle = litGrad;
@@ -856,7 +886,6 @@
                 ctx.fill();
 
             } else if (state.moonAge > 7.375 && state.moonAge <= 14.75) {
-                // 2. 上弦 -> 満月 (右半円 + 左膨らみ)
                 ctx.beginPath();
                 ctx.arc(cx, cy, r, -Math.PI / 2, Math.PI / 2, false);
                 ctx.fillStyle = litGrad;
@@ -868,7 +897,6 @@
                 ctx.fill();
 
             } else if (state.moonAge > 14.75 && state.moonAge <= 22.125) {
-                // 3. 満月 -> 下弦 (左半円 + 右膨らみ)
                 ctx.beginPath();
                 ctx.arc(cx, cy, r, -Math.PI / 2, Math.PI / 2, true);
                 ctx.fillStyle = litGrad;
@@ -880,7 +908,6 @@
                 ctx.fill();
 
             } else {
-                // 4. 下弦 -> 新月 (左側有明月)
                 ctx.beginPath();
                 ctx.arc(cx, cy, r, -Math.PI / 2, Math.PI / 2, true);
                 ctx.fillStyle = litGrad;
@@ -892,7 +919,6 @@
                 ctx.fill();
             }
 
-            // 月の表面クレーターのリアル感（透かし演出）
             ctx.fillStyle = 'rgba(161, 161, 170, 0.15)';
             ctx.beginPath();
             ctx.arc(cx - 20, cy - 20, 15, 0, Math.PI * 2);
@@ -904,7 +930,7 @@
         }
 
         /* ==========================================================================
-           6. 方角・時刻・情報表示の計算
+           5. 方角・時刻・情報表示の計算
            ========================================================================== */
         function getCurrentPhaseInfo() {
             const age = state.moonAge;
@@ -913,108 +939,110 @@
                     return phase;
                 }
             }
-            return MOON_PHASES[0]; // デフォルト
+            return MOON_PHASES[0];
+        }
+
+        function getTimeNameHtml(hour) {
+            let h = hour % 24;
+            if (h >= 4.5 && h < 7.5) {
+                return '<ruby>朝<rt>あさ</rt></ruby>';
+            } else if (h >= 7.5 && h < 11.5) {
+                return '<ruby>午前<rt>ごぜん</rt></ruby>';
+            } else if (h >= 11.5 && h < 13.5) {
+                return '<ruby>昼<rt>ひる</rt></ruby>';
+            } else if (h >= 13.5 && h < 16.5) {
+                return '<ruby>午後<rt>ごご</rt></ruby>';
+            } else if (h >= 16.5 && h < 19.5) {
+                return '<ruby>夕方<rt>ゆうがた</rt></ruby>';
+            } else if (h >= 19.5 && h < 23.5) {
+                return '<ruby>夜<rt>よる</rt></ruby>';
+            } else {
+                return '<ruby>夜中<rt>よなか</rt></ruby>';
+            }
         }
 
         function calculateMoonDirectionAndAltitude() {
-            // 月の角度 (公転) & 人の角度 (自転時刻)
-            const moonAngle = (state.moonAge / 29.5) * Math.PI * 2; // 0=西(太陽方向)
+            const moonAngle = (state.moonAge / 29.5) * Math.PI * 2;
             const personAngle = ((state.timeHour - 12) / 24) * Math.PI * 2;
 
-            // 相対角度 (観測者からみた月の角度)
-            let relativeAngle = (moonAngle - personAngle) % (Math.PI * 2);
-            if (relativeAngle < 0) relativeAngle += Math.PI * 2;
-
-            // 地平線判定: 0〜π が空の上にある時間
-            // relativeAngle:
-            // ~0 : 西の空低く沈む
-            // ~π/2 (90度) : 南の空高く見える
-            // ~π (180度) : 東の空から昇る
-            // > π : 地平線の下（見えない）
+            let diff = (moonAngle - personAngle) % (Math.PI * 2);
+            if (diff > Math.PI) diff -= Math.PI * 2;
+            if (diff < -Math.PI) diff += Math.PI * 2;
 
             let direction = "見えません（地平線の下）";
             let altitude = "地平線の下";
+            let isVisible = false;
 
-            if (relativeAngle >= 0 && relativeAngle <= Math.PI) {
-                if (relativeAngle < Math.PI * 0.3) {
-                    direction = "西の空（低い）";
-                    altitude = "低く見える";
-                } else if (relativeAngle <= Math.PI * 0.7) {
-                    direction = "南の空（高い）";
-                    altitude = "一番高く見える！";
-                } else {
+            if (diff >= -Math.PI * 0.55 && diff <= Math.PI * 0.55) {
+                isVisible = true;
+                if (diff > Math.PI * 0.25) {
                     direction = "東の空（のぼってくる）";
                     altitude = "低くのぼる";
+                } else if (diff < -Math.PI * 0.25) {
+                    direction = "西の空（しずみかけ）";
+                    altitude = "低く見える";
+                } else {
+                    direction = "南の空（高い）";
+                    altitude = "一番高く見える！";
                 }
             }
 
-            return { direction, altitude, isVisible: (relativeAngle >= 0 && relativeAngle <= Math.PI) };
+            return { direction, altitude, isVisible };
         }
 
         function updateSkyBackground() {
             const skyBg = document.getElementById('skyBg');
-            const h = state.timeHour;
+            const h = state.timeHour % 24;
 
-            // 時刻による背景色変化（昼・夕・夜）
             if (h >= 6 && h < 16) {
-                // 昼間
                 skyBg.className = skyBg.className.replace(/bg-\[\#[^\]]+\]|bg-slate-950/g, '') + " bg-gradient-to-b from-sky-500 to-blue-600";
             } else if ((h >= 16 && h < 19) || (h >= 4 && h < 6)) {
-                // 夕方・明け方
                 skyBg.className = skyBg.className.replace(/bg-\[\#[^\]]+\]|bg-slate-950/g, '') + " bg-gradient-to-b from-indigo-900 via-purple-900 to-amber-800";
             } else {
-                // 夜
                 skyBg.className = skyBg.className.replace(/bg-\[\#[^\]]+\]|bg-slate-950/g, '') + " bg-slate-950";
             }
         }
 
         /* ==========================================================================
-           7. UI全更新バインド
+           6. UI全更新バインド
            ========================================================================== */
         function updateAllViews() {
-            // スライダー表示の同期
             document.getElementById('moonAgeVal').innerText = state.moonAge.toFixed(1);
             document.getElementById('orbitDaysDisplay').innerText = state.moonAge.toFixed(1);
 
-            const hours = Math.floor(state.timeHour);
+            let hours = Math.floor(state.timeHour) % 24;
             const mins = (state.timeHour % 1 === 0.5) ? '30' : '00';
             const timeStr = `${hours.toString().padStart(2, '0')}:${mins}`;
             document.getElementById('timeVal').innerText = timeStr;
             document.getElementById('timeDisplay').innerText = timeStr;
+            document.getElementById('timeNameVal').innerHTML = getTimeNameHtml(state.timeHour);
 
-            // 3D更新
             update3DPositions();
-
-            // 2D Canvas更新
             drawMoonPhaseCanvas();
 
-            // 月相情報の更新
             const phase = getCurrentPhaseInfo();
             const phaseBadge = document.getElementById('phaseBadge');
             phaseBadge.innerText = `${phase.name} (${phase.ruby})`;
 
-            // 方角と高さ
             const posInfo = calculateMoonDirectionAndAltitude();
             document.getElementById('directionText').innerText = posInfo.direction;
             document.getElementById('altitudeText').innerText = posInfo.altitude;
 
-            // 解説カード
             document.getElementById('explanationTitle').innerHTML = `<ruby>${phase.name}<rt>${phase.ruby}</rt></ruby> の特徴`;
             document.getElementById('explanationBody').innerHTML = `
                 ${phase.explanation}<br>
                 <span class="text-amber-300 font-bold mt-1 block">💡 見やすい時間：${phase.visibleTime}</span>
             `;
 
-            // 空の背景更新
             updateSkyBackground();
         }
 
         /* ==========================================================================
-           8. イベントハンドラー & 操作関数
+           7. イベントハンドラー & 操作関数
            ========================================================================== */
         document.getElementById('orbitSlider').addEventListener('input', (e) => {
             state.moonAge = parseFloat(e.target.value);
-            if (state.isPlaying) togglePlay(); // 手動操作時は停止
+            if (state.isPlaying) togglePlay();
             updateAllViews();
         });
 
@@ -1024,7 +1052,6 @@
         });
 
         function setMoonAge(age) {
-            playSound('click');
             state.moonAge = age;
             document.getElementById('orbitSlider').value = age;
             if (state.isPlaying) togglePlay();
@@ -1032,14 +1059,12 @@
         }
 
         function setTimeVal(hour) {
-            playSound('click');
             state.timeHour = hour;
             document.getElementById('timeSlider').value = hour;
             updateAllViews();
         }
 
         function togglePlay() {
-            playSound('click');
             state.isPlaying = !state.isPlaying;
             const playBtn = document.getElementById('playBtn');
             const playIcon = document.getElementById('playIcon');
@@ -1059,7 +1084,6 @@
         }
 
         function setSpeed(spd) {
-            playSound('click');
             state.speed = spd;
             ['05', '10', '20'].forEach(id => {
                 const btn = document.getElementById(`speed-${id}`);
@@ -1071,7 +1095,6 @@
         }
 
         function toggleRuby() {
-            playSound('click');
             state.rubyEnabled = !state.rubyEnabled;
             const body = document.body;
             const status = document.getElementById('rubyStatusText');
@@ -1086,7 +1109,6 @@
         }
 
         function switchTab(tab) {
-            playSound('click');
             state.currentTab = tab;
 
             ['observe', 'gallery', 'quiz'].forEach(t => {
@@ -1109,7 +1131,7 @@
         }
 
         /* ==========================================================================
-           9. 図鑑 (GALLERY) モード処理
+           8. 図鑑 (GALLERY) モード処理
            ========================================================================== */
         function renderGallery() {
             const grid = document.getElementById('galleryGrid');
@@ -1150,7 +1172,7 @@
         }
 
         /* ==========================================================================
-           10. クイズ (QUIZ) モード処理
+           9. クイズ (QUIZ) モード処理
            ========================================================================== */
         let currentQuizIdx = 0;
         let quizScore = 0;
@@ -1199,13 +1221,9 @@
 
             if (isCorrect) {
                 quizScore++;
-                playSound('correct');
                 document.getElementById('quizScoreDisplay').innerText = quizScore;
-            } else {
-                playSound('wrong');
             }
 
-            // フィードバック表示
             const feedback = document.getElementById('quizFeedback');
             const resultHeader = document.getElementById('feedbackResult');
             const resultText = document.getElementById('feedbackText');
@@ -1222,7 +1240,6 @@
 
             resultText.innerText = q.exp;
 
-            // ボタンのハイライト処理
             const optionBtns = document.getElementById('quizOptions').children;
             Array.from(optionBtns).forEach((btn, idx) => {
                 btn.disabled = true;
@@ -1237,12 +1254,10 @@
         }
 
         function nextQuestion() {
-            playSound('click');
             currentQuizIdx++;
             if (currentQuizIdx < QUIZ_QUESTIONS.length) {
                 showQuestion();
             } else {
-                // クイズ終了
                 document.getElementById('quizContainer').classList.add('hidden');
                 document.getElementById('quizComplete').classList.remove('hidden');
                 document.getElementById('quizComplete').classList.add('flex');
@@ -1251,19 +1266,12 @@
         }
 
         /* ==========================================================================
-           11. アプリ初期化 (Window Load)
+           10. アプリ初期化
            ========================================================================== */
         window.onload = function() {
-            // Three.js 初期化
             init3D();
-
-            // 図鑑初期化
             renderGallery();
-
-            // クイズ初期化
             startQuiz();
-
-            // 初期ビュー描画
             updateAllViews();
         };
     </script>
