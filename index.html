@@ -521,10 +521,10 @@
         // 宇宙視点用のカメラパラメータ
         let camTheta = Math.PI / 2;
         let camElevation = 0.55;
-        let camRadius = 36;
+        let camRadius = 45;
         let targetCamTheta = Math.PI / 2;
         let targetCamElevation = 0.55;
-        let targetCamRadius = 36;
+        let targetCamRadius = 45;
 
         // 観測者視点（地上）用のカメラパラメータ
         let gCamYaw = 0;        // 水平回転 (0=南, -PI/2=西, PI/2=東, PI=北)
@@ -906,7 +906,7 @@
                 // カメラリセット
                 targetCamTheta = Math.PI / 2;
                 targetCamElevation = 0.55;
-                targetCamRadius = 36;
+                targetCamRadius = 45;
                 isAnimatingToPreset = true;
                 
             } else {
@@ -967,10 +967,10 @@
         // --- プリセットボタン ---
         function setPresetView(type) {
             isAnimatingToPreset = true;
-            if (type === 'sun-left') { targetCamTheta = Math.PI / 2; targetCamElevation = 0.35; targetCamRadius = 36; }
-            else if (type === 'sun-right') { targetCamTheta = -Math.PI / 2; targetCamElevation = 0.35; targetCamRadius = 36; }
-            else if (type === 'top-left') { targetCamTheta = Math.PI / 2; targetCamElevation = 1.45; targetCamRadius = 36; }
-            else if (type === 'top-right') { targetCamTheta = -Math.PI / 2; targetCamElevation = 1.45; targetCamRadius = 36; }
+            if (type === 'sun-left') { targetCamTheta = Math.PI / 2; targetCamElevation = 0.35; targetCamRadius = 45; }
+            else if (type === 'sun-right') { targetCamTheta = -Math.PI / 2; targetCamElevation = 0.35; targetCamRadius = 45; }
+            else if (type === 'top-left') { targetCamTheta = Math.PI / 2; targetCamElevation = 1.45; targetCamRadius = 45; }
+            else if (type === 'top-right') { targetCamTheta = -Math.PI / 2; targetCamElevation = 1.45; targetCamRadius = 45; }
         }
 
         function setGroundPreset(dir) {
