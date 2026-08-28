@@ -706,12 +706,16 @@
                 texture.minFilter = THREE.LinearFilter;
                 const mat = new THREE.SpriteMaterial({ map: texture, depthTest: false, transparent: true });
                 const sprite = new THREE.Sprite(mat);
-                sprite.scale.set(15, 4.6875, 1);
+                sprite.scale.set(22.5, 7.03125, 1);
                 sprite.renderOrder = 10;
                 return sprite;
             }
             
-            labelS = createLabelSprite('南(正面)', 'rgba(15, 23, 42, 0.8)', '#fde047', 'rgba(253, 224, 71, 0.4)'); labelS.position.set(0, 2, -54); groundGroup.add(labelS);
+            labelS = createLabelSprite('南(正面)', 'rgba(15, 23, 42, 0.8)', '#fde047', 'rgba(253, 224, 71, 0.4)'); 
+labelS.position.set(0, 2, -54); 
+labelS.scale.set(29.25, 9.14, 1); // カメラから遠い分、さらに拡大して見た目を揃える
+groundGroup.add(labelS);
+
             labelE = createLabelSprite('東(昇る)', 'rgba(15, 23, 42, 0.8)', '#93c5fd', 'rgba(147, 197, 253, 0.4)'); labelE.position.set(-54, 2, 0); groundGroup.add(labelE);
             labelW = createLabelSprite('西(沈む)', 'rgba(15, 23, 42, 0.8)', '#fca5a5', 'rgba(252, 165, 165, 0.4)'); labelW.position.set(54, 2, 0); groundGroup.add(labelW);
             labelN = createLabelSprite('北(背後)', 'rgba(15, 23, 42, 0.8)', '#d1d5db', 'rgba(209, 213, 219, 0.4)'); labelN.position.set(0, 2, 54); groundGroup.add(labelN);
