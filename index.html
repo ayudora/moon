@@ -1040,11 +1040,9 @@ function setGroundMode(mode) {
                 // 太陽メッシュの位置に光源を合わせる
                 if (uSunLight) uSunLight.position.copy(sunMesh.position);
 
-                let timeAngle = ((state.timeHour - 12) / 24) * Math.PI * 2;
-                if (state.orbitMode === 'sunMoves') {
-                    // 太陽が移動した角度分だけ、地球のお昼の基準も一緒に回転させる
-                    timeAngle -= (state.moonAge / 29.5) * Math.PI * 2;
-                }
+                // 地球の自転は「地球の時刻」だけで決める。
+                // 太陽が動くモードでも、月齢の変化によって地球を回さない。
+                const timeAngle = ((state.timeHour - 12) / 24) * Math.PI * 2;
                 earthGroup.rotation.y = timeAngle;
             }
 
