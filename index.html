@@ -537,9 +537,13 @@
         let targetCamRadius = 55;
 
         let gCamYaw = 0;
-        let gCamPitch = 0.2;
+        let gCamPitch = 0.4; // 見上げる角度
         let targetGCamYaw = 0;
-        let targetGCamPitch = 0.2;
+        let targetGCamPitch = 0.4; // 見上げる角度
+
+        //  視野角変更
+        let camFov = 80;
+        let targetCamFov = 80;
 
         let isAnimatingToPreset = false;
 
@@ -811,11 +815,15 @@
         }
 
         function zoomCamera(delta) {
-            if (state.viewMode === 'space') {
-                targetCamRadius = Math.max(15, Math.min(85, targetCamRadius + delta));
-                isAnimatingToPreset = true; // スムーズなズームアニメーションを有効化
-            }
-        }
+    if (state.viewMode === 'space') {
+        targetCamRadius = Math.max(15, Math.min(85, targetCamRadius + delta));
+        isAnimatingToPreset = true; // スムーズなズームアニメーションを有効化
+    } else if (state.viewMode === 'ground' && state.groundMode === 'firstPerson') {
+        // 観測者視点ではカメラの視野角（FOV）を変化させて拡縮する
+        targetCamFov = Math.max(30, Math.min(120, targetCamFov + delta * 0.8));
+        isAnimatingToPreset = true;
+    }
+}
 
         function applyCameraTransform() {
             if (state.viewMode === 'space') {
@@ -850,15 +858,19 @@
                     camera.position.set(0, 6, targetZ);
                     camera.lookAt(0, 18, 0); 
                 } else {
-                    if (camera.fov !== 85) { camera.fov = 85; camera.updateProjectionMatrix(); } 
-                    if (isAnimatingToPreset) {
-                        gCamYaw += (targetGCamYaw - gCamYaw) * 0.18;
-                        gCamPitch += (targetGCamPitch - gCamPitch) * 0.18;
-                        if (Math.abs(targetGCamYaw - gCamYaw) < 0.001 && Math.abs(targetGCamPitch - gCamPitch) < 0.001) {
-                            isAnimatingToPreset = false;
-                        }
-                    }
-                    camera.position.set(0, 1.5, 0);
+    if (isAnimatingToPreset) {
+        camFov += (targetCamFov - camFov) * 0.18;
+        camera.fov = camFov;
+        camera.updateProjectionMatrix();
+
+        gCamYaw += (targetGCamYaw - gCamYaw) * 0.18;
+        gCamPitch += (targetGCamPitch - gCamPitch) * 0.18;
+        
+        if (Math.abs(targetGCamYaw - gCamYaw) < 0.001 && Math.abs(targetGCamPitch - gCamPitch) < 0.001 && Math.abs(targetCamFov - camFov) < 0.1) {
+            isAnimatingToPreset = false;
+        }
+    }
+    camera.position.set(0, 1.5, 0);
                     const dirX = -Math.sin(gCamYaw) * Math.cos(gCamPitch);
                     const dirY = Math.sin(gCamPitch);
                     const dirZ = -Math.cos(gCamYaw) * Math.cos(gCamPitch);
@@ -889,7 +901,9 @@
                 
                 hintLabel.innerHTML = '<i class="fa-solid fa-arrows-up-down-left-right text-indigo-400 text-sm"></i><span class="text-xs sm:text-sm font-bold text-slate-200">ドラッグで宇宙から見回す</span>';
                 hintLabel.style.display = 'flex';
-                
+                const zoomControls = document.getElementById('zoomControls');
+if (zoomControls) { zoomControls.classList.remove('hidden'); zoomControls.classList.add('flex'); }
+
                 targetCamTheta = Math.PI / 2;
                 targetCamElevation = 0.55;
                 targetCamRadius = 55;
@@ -915,18 +929,19 @@
                 if (diff < -Math.PI) diff += Math.PI * 2;
                 
                 targetGCamYaw = diff; 
-                targetGCamPitch = 0.2; 
+                targetGCamPitch = 0.4;  //見上げる角度
                 isAnimatingToPreset = true;
             }
             updateAllViews();
         }
 
-        function setGroundMode(mode) {
+function setGroundMode(mode) {
             state.groundMode = mode;
             const btnFP = document.getElementById('btnGroundFP');
             const btnOV = document.getElementById('btnGroundOV');
             const presetGround = document.getElementById('presetGround');
             const hintLabel = document.getElementById('dragHintLabel');
+            const zoomControls = document.getElementById('zoomControls');
 
             if (mode === 'firstPerson') {
                 btnFP.className = "px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-emerald-600 text-white flex items-center gap-1.5 shadow";
@@ -935,6 +950,8 @@
                 presetGround.classList.remove('hidden'); presetGround.classList.add('flex');
                 hintLabel.innerHTML = '<i class="fa-solid fa-arrows-up-down-left-right text-emerald-400 text-sm"></i><span class="text-xs sm:text-sm font-bold text-slate-200">ドラッグで空を見回す</span>';
                 hintLabel.style.display = 'flex';
+                
+                if (zoomControls) { zoomControls.classList.remove('hidden'); zoomControls.classList.add('flex'); }
                 
                 if(labelN) labelN.visible = true;
                 if(labelZenith) labelZenith.visible = false;
@@ -946,6 +963,8 @@
                 
                 presetGround.classList.add('hidden'); presetGround.classList.remove('flex');
                 hintLabel.style.display = 'none';
+                
+                if (zoomControls) { zoomControls.classList.add('hidden'); zoomControls.classList.remove('flex'); }
                 
                 if(labelN) labelN.visible = false;
                 if(labelZenith) labelZenith.visible = true;
@@ -966,9 +985,9 @@
 
         function setGroundPreset(dir) {
             isAnimatingToPreset = true;
-            if (dir === 'south') { targetGCamYaw = 0; targetGCamPitch = 0.2; }
-            else if (dir === 'east') { targetGCamYaw = Math.PI / 2; targetGCamPitch = 0.2; }
-            else if (dir === 'west') { targetGCamYaw = -Math.PI / 2; targetGCamPitch = 0.2; }
+            if (dir === 'south') { targetGCamYaw = 0; targetGCamPitch = 0.4; } //見上げる角度
+            else if (dir === 'east') { targetGCamYaw = Math.PI / 2; targetGCamPitch = 0.4; } //見上げる角度
+            else if (dir === 'west') { targetGCamYaw = -Math.PI / 2; targetGCamPitch = 0.4; } //見上げる角度
             else if (dir === 'zenith') { targetGCamPitch = Math.PI / 2 - 0.2; }
         }
 
