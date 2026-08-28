@@ -40,14 +40,6 @@
             box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.5);
         }
 
-        /* ルビのスタイリング */
-        rt {
-            font-size: 0.65em;
-            color: #93c5fd;
-        }
-        .hide-ruby rt {
-            display: none;
-        }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col overflow-x-hidden select-none">
@@ -60,17 +52,17 @@
             </div>
             <div>
                 <h1 class="text-lg md:text-xl font-bold tracking-wide text-amber-300 flex items-center gap-2">
-                    <ruby>月<rt>つき</rt></ruby>の<ruby>満<rt>み</rt></ruby>ち<ruby>欠<rt>か</rt></ruby>け <ruby>学習<rt>がくしゅう</rt></ruby>
+                    月の満ち欠け 学習
                 </h1>
                 <p class="text-xs text-slate-400 hidden sm:block">〜 月と地球と太陽の位置関係をつかもう 〜</p>
             </div>
         </div>
 
-        <!-- ルビ切替 & モード切替 -->
+        <!-- 今日の月 & モード切替 -->
         <div class="flex items-center gap-2 md:gap-4">
-            <button id="rubyToggleBtn" onclick="toggleRuby()" class="bg-slate-800 hover:bg-slate-700 text-xs md:text-sm px-3 py-1.5 rounded-lg border border-slate-700 flex items-center gap-1.5 transition">
-                <i class="fa-solid fa-language text-amber-400"></i>
-                <span id="rubyStatusText">ふりがな ON</span>
+            <button id="todayMoonBtn" onclick="setTodayMoon()" class="bg-slate-800 hover:bg-slate-700 text-xs md:text-sm px-3 py-1.5 rounded-lg border border-slate-700 flex items-center gap-1.5 transition">
+                <i class="fa-solid fa-calendar-day text-amber-400"></i>
+                <span>きょうの月</span>
             </button>
 
             <div class="flex bg-slate-800/80 p-1 rounded-xl border border-slate-700/80 text-xs md:text-sm">
@@ -445,7 +437,6 @@
             isPlayingEarth: false,
             speed: 1.0,
             showRays: true,
-            rubyEnabled: true,
             currentTab: 'observe',
             viewMode: 'space',
             groundMode: 'overview'
@@ -468,7 +459,7 @@
                 name: "上弦の月", ruby: "じょうげんのつき", alias: "半月（右半分）",
                 ageMin: 5.5, ageMax: 9.5,
                 direction: "夕方：南の空 / 深夜：西に沈む", visibleTime: "昼前〜深夜0時頃",
-                explanation: "夕方6時ごろに「南の空」に高く見えます。右側半分が明るく輝いています。弓に弦（つる）を張ったような形（まっすぐな側が弦）に見えるのが名前の由来です。", quizIcon: "🌓"
+                explanation: "夕方6時ごろに「南の空」に高く見えます。右側半分が明るく輝いています。弓に弦を張ったような形に見えるのが名前の由来です。", quizIcon: "🌓"
             },
             {
                 name: "十三夜の月", ruby: "じゅうさんやのつき", alias: "満月手前",
@@ -996,12 +987,19 @@ function setGroundMode(mode) {
         }
 
         function toggleSunRays() {
-            state.showRays = !state.showRays;
-            sunRaysGroup.visible = state.showRays;
-            const btn = document.getElementById('btnRays');
-            if (state.showRays) { btn.classList.add('text-amber-300'); btn.classList.remove('text-slate-500'); } 
-            else { btn.classList.remove('text-amber-300'); btn.classList.add('text-slate-500'); }
-        }
+    if (state.orbitMode === 'sunMoves') return; // 太陽が動くモードの時は切り替えを無効化
+
+    state.showRays = !state.showRays;
+    sunRaysGroup.visible = state.showRays;
+    const btn = document.getElementById('btnRays');
+    if (state.showRays) { 
+        btn.classList.add('text-amber-300'); 
+        btn.classList.remove('text-slate-500'); 
+    } else { 
+        btn.classList.remove('text-amber-300'); 
+        btn.classList.add('text-slate-500'); 
+    }
+}
 
         function onWindowResize() {
             const container = document.getElementById('canvas3d-container');
@@ -1340,13 +1338,13 @@ function setGroundMode(mode) {
             drawMoonPhaseCanvas();
 
             const phase = getCurrentPhaseInfo();
-            document.getElementById('phaseBadge').innerText = `${phase.name} (${phase.ruby})`;
+            document.getElementById('phaseBadge').innerText = phase.name;
 
             const posInfo = calculateMoonDirectionAndAltitude();
             document.getElementById('directionText').innerText = posInfo.direction;
             document.getElementById('altitudeText').innerText = posInfo.altitude;
 
-            document.getElementById('explanationTitle').innerHTML = `<ruby>${phase.name}<rt>${phase.ruby}</rt></ruby> の特徴`;
+            document.getElementById('explanationTitle').innerText = `${phase.name} の特徴`;
 
             // 「見やすい時間」は現在時刻ではなく、月齢ごとの説明として表示する。
             // state.timeHour はここでは使用しない。
@@ -1373,6 +1371,36 @@ function setGroundMode(mode) {
             if (state.isPlayingEarth) togglePlayEarth();
             updateAllViews();
         });
+
+        // きょうの月：端末の現在時刻から、おおよその月齢と時刻を自動設定する。
+        function calculateTodayMoonAge(date = new Date()) {
+            // 2000-01-06 18:14 UTC の新月を基準に、朔望月の平均長から月齢を求める。
+            // 学習用の表示として、小数第1位まで扱える十分な精度を確保する。
+            const referenceNewMoon = Date.UTC(2000, 0, 6, 18, 14, 0);
+            const synodicMonth = 29.530588853;
+            const elapsedDays = (date.getTime() - referenceNewMoon) / 86400000;
+            let moonAge = elapsedDays % synodicMonth;
+            if (moonAge < 0) moonAge += synodicMonth;
+            return Math.min(29.5, moonAge);
+        }
+
+        function setTodayMoon() {
+            // 「きょうの月」を押した時点の現在時刻を使う。
+            const now = new Date();
+            const todayMoonAge = calculateTodayMoonAge(now);
+            const todayTime = now.getHours() + now.getMinutes() / 60 + now.getSeconds() / 3600;
+
+            // 今日の状態を固定するため、再生中なら停止する。
+            if (state.isPlaying) togglePlay();
+            if (state.isPlayingEarth) togglePlayEarth();
+
+            state.moonAge = todayMoonAge;
+            state.timeHour = todayTime;
+
+            document.getElementById('orbitSlider').value = todayMoonAge;
+            document.getElementById('timeSlider').value = todayTime;
+            updateAllViews();
+        }
 
         function setMoonAge(age) {
             state.moonAge = age;
@@ -1425,12 +1453,6 @@ function setGroundMode(mode) {
             if (activeEl) activeEl.className = "px-2.5 py-1 rounded-lg transition bg-slate-800 text-amber-300 font-bold";
         }
 
-        function toggleRuby() {
-            state.rubyEnabled = !state.rubyEnabled;
-            if (state.rubyEnabled) { document.body.classList.remove('hide-ruby'); document.getElementById('rubyStatusText').innerHTML = "ふりがな ON"; } 
-            else { document.body.classList.add('hide-ruby'); document.getElementById('rubyStatusText').innerHTML = "ふりがな OFF"; }
-        }
-
         function switchTab(tab) {
             state.currentTab = tab;
             ['observe', 'gallery', 'quiz'].forEach(t => {
@@ -1457,7 +1479,7 @@ function setGroundMode(mode) {
                             <span class="text-3xl">${phase.quizIcon}</span>
                             <span class="bg-slate-900 border border-slate-700 text-xs px-2.5 py-1 rounded text-amber-300 font-bold">月齢 ${(phase.ageMin).toFixed(1)}〜</span>
                         </div>
-                        <h3 class="font-black text-base text-amber-300 group-hover:text-amber-200 transition"><ruby>${phase.name}<rt>${phase.ruby}</rt></ruby></h3>
+                        <h3 class="font-black text-base text-amber-300 group-hover:text-amber-200 transition">${phase.name}</h3>
                         <p class="text-xs text-slate-400 mb-2">（別名: ${phase.alias}）</p>
                         <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-3">${phase.explanation}</p>
                     </div>
@@ -1548,21 +1570,31 @@ function setGroundMode(mode) {
         /* ==========================================================================
            10. アプリ初期化
            ========================================================================== */
-        // 変更点：天体固定モード用の切り替え関数を追加しました
         function setOrbitMode(mode) {
-            state.orbitMode = mode;
-            const btnMoon = document.getElementById('btnOrbitMoon');
-            const btnSun = document.getElementById('btnOrbitSun');
-            
-            if (mode === 'moonMoves') {
-                btnMoon.className = "flex-1 py-1.5 rounded bg-slate-700 text-white font-bold transition shadow";
-                btnSun.className = "flex-1 py-1.5 rounded text-slate-400 hover:text-white transition";
-            } else {
-                btnMoon.className = "flex-1 py-1.5 rounded text-slate-400 hover:text-white transition";
-                btnSun.className = "flex-1 py-1.5 rounded bg-amber-600 text-white font-bold transition shadow";
-            }
-            updateAllViews();
-        }
+    state.orbitMode = mode;
+    const btnMoon = document.getElementById('btnOrbitMoon');
+    const btnSun = document.getElementById('btnOrbitSun');
+    const btnRays = document.getElementById('btnRays'); // 光ガイドボタンを取得
+    
+    if (mode === 'moonMoves') {
+        btnMoon.className = "flex-1 py-1.5 rounded bg-slate-700 text-white font-bold transition shadow";
+        btnSun.className = "flex-1 py-1.5 rounded text-slate-400 hover:text-white transition";
+        
+        // 月が動くモード：光ガイドを元の設定状態に戻し、ボタンを有効化
+        sunRaysGroup.visible = state.showRays;
+        btnRays.style.opacity = "1";
+        btnRays.style.pointerEvents = "auto";
+    } else {
+        btnMoon.className = "flex-1 py-1.5 rounded text-slate-400 hover:text-white transition";
+        btnSun.className = "flex-1 py-1.5 rounded bg-amber-600 text-white font-bold transition shadow";
+        
+        // 太陽が動くモード：光ガイドを強制非表示にし、ボタンを無効化（グレーアウト）
+        sunRaysGroup.visible = false;
+        btnRays.style.opacity = "0.4";
+        btnRays.style.pointerEvents = "none";
+    }
+    updateAllViews();
+}
 
         window.onload = function() {
             init3D();
