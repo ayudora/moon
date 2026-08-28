@@ -1069,7 +1069,19 @@ function setGroundMode(mode) {
                 gMoonMesh.position.set(mx, my, mz);
 
                 if (state.groundMode === 'overview') {
-                    const V = new THREE.Vector3().subVectors(camera.position, gMoonMesh.position).normalize();
+                    // 切り替え直後の位置ズレによる光の傾きを防ぐため、
+                    // 模式図の確定カメラ位置(ovCamPos)を計算してから光を当てる
+                    const reqWidth = 120;
+                    const reqHeight = 55;
+                    const fovRad = THREE.MathUtils.degToRad(25 / 2);
+                    
+                    let targetZ = reqWidth / (2 * camera.aspect * Math.tan(fovRad));
+                    const minZHeight = reqHeight / (2 * Math.tan(fovRad));
+                    targetZ = Math.max(targetZ, minZHeight);
+                    
+                    const ovCamPos = new THREE.Vector3(0, 6, targetZ); // 正しい位置を指定
+                    
+                    const V = new THREE.Vector3().subVectors(ovCamPos, gMoonMesh.position).normalize();
                     const up = new THREE.Vector3(0, 1, 0);
                     const R = new THREE.Vector3().crossVectors(up, V).normalize();
                     
