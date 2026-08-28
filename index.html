@@ -971,11 +971,27 @@ function setGroundMode(mode) {
 
         function setPresetView(type) {
             isAnimatingToPreset = true;
-            if (type === 'sun-left') { targetCamTheta = Math.PI / 2; targetCamElevation = 0.35; targetCamRadius = 55; }
-            else if (type === 'sun-right') { targetCamTheta = -Math.PI / 2; targetCamElevation = 0.35; targetCamRadius = 55; }
-            // 変更点：真上ボタンのズーム距離を 45 から 55 に離し、太陽が見切れないようにしました
-            else if (type === 'top-left') { targetCamTheta = Math.PI / 2; targetCamElevation = 1.45; targetCamRadius = 55; }
-            else if (type === 'top-right') { targetCamTheta = -Math.PI / 2; targetCamElevation = 1.45; targetCamRadius = 55; }
+
+            if (state.orbitMode === 'sunMoves') {
+                // 太陽が動くモードでは、「太陽左・右」が
+                // 現在の太陽の位置に対して常に正しい向きになるようにする。
+                const moonAngle = (state.moonAge / 29.5) * Math.PI * 2;
+                const sunAngle = Math.PI + moonAngle;
+                const isTopView = (type === 'top-left' || type === 'top-right');
+                const isLeft = (type === 'sun-left' || type === 'top-left');
+
+                // 太陽を画面の左側に置くには、太陽の方向から90度左へ
+                // カメラを回す。右側なら90度右へ回す。
+                targetCamTheta = sunAngle + (isLeft ? -Math.PI / 2 : Math.PI / 2);
+                targetCamElevation = isTopView ? 1.45 : 0.35;
+                targetCamRadius = 55;
+            } else {
+                // 月が動くモードは、これまでの固定プリセットをそのまま使用する。
+                if (type === 'sun-left') { targetCamTheta = Math.PI / 2; targetCamElevation = 0.35; targetCamRadius = 55; }
+                else if (type === 'sun-right') { targetCamTheta = -Math.PI / 2; targetCamElevation = 0.35; targetCamRadius = 55; }
+                else if (type === 'top-left') { targetCamTheta = Math.PI / 2; targetCamElevation = 1.45; targetCamRadius = 55; }
+                else if (type === 'top-right') { targetCamTheta = -Math.PI / 2; targetCamElevation = 1.45; targetCamRadius = 55; }
+            }
         }
 
         function setGroundPreset(dir) {
