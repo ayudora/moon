@@ -259,7 +259,14 @@
                                 <span id="orbitDaysDisplay" class="text-sm sm:text-base font-black">0.0</span> / 29.5 日
                             </span>
                         </div>
-                        <input id="orbitSlider" type="range" min="0" max="29.5" step="0.1" value="0" 
+                        
+                        <!-- モード切り替えボタン -->
+                        <div class="flex bg-slate-900 p-1 rounded-lg border border-slate-700 text-xs mt-1 mb-1">
+                            <button onclick="setOrbitMode('moonMoves')" id="btnOrbitMoon" class="flex-1 py-1.5 rounded bg-slate-700 text-white font-bold transition shadow">月が動く(標準)</button>
+                            <button onclick="setOrbitMode('sunMoves')" id="btnOrbitSun" class="flex-1 py-1.5 rounded text-slate-400 hover:text-white transition">太陽が動く(固定)</button>
+                        </div>
+
+                        <input id="orbitSlider" type="range" min="0" max="29.5" step="0.1" value="14.8" 
                                class="w-full h-3 bg-slate-800 rounded-lg appearance-none cursor-pointer">
                         <div class="flex justify-between text-xs text-slate-400 px-1 font-bold">
                             <button onclick="setMoonAge(0)" class="hover:text-amber-300 transition">新月 (0)</button>
@@ -281,7 +288,7 @@
                                 <span id="timeDisplay" class="text-sm sm:text-base font-black">18:00</span>
                             </span>
                         </div>
-                        <input id="timeSlider" type="range" min="0" max="24" step="0.5" value="18" 
+                        <input id="timeSlider" type="range" min="0" max="24" step="0.5" value="0" 
                                class="w-full h-3 bg-slate-800 rounded-lg appearance-none cursor-pointer">
                         <div class="flex justify-between text-xs text-slate-400 px-1 font-bold">
                             <button onclick="setTimeVal(0)" class="hover:text-emerald-300 transition">夜中 0時</button>
@@ -421,8 +428,9 @@
            1. グローバル状態管理 & データベース定義
            ========================================================================== */
         const state = {
-            moonAge: 0.0,
-            timeHour: 18.0,
+            orbitMode: 'moonMoves', // 追加: 'moonMoves' または 'sunMoves'
+            moonAge: 14.8,
+            timeHour: 0.0,
             isPlaying: false,
             isPlayingEarth: false,
             speed: 1.0,
@@ -506,16 +514,17 @@
         let sunMesh, earthGroup, earthMesh, moonMesh, moonOrbitLine, sunRaysGroup, observerMarker;
         let gSunMesh, gMoonMesh, gSunLight, skyMat, gStars, groundPlateMesh;
         let labelN, labelS, labelE, labelW, labelZenith;
+        let uSunLight; // 新しい光源用の変数
         
         let isDragging3D = false;
         let previousMousePosition = { x: 0, y: 0 };
 
         let camTheta = Math.PI / 2;
         let camElevation = 0.55;
-        let camRadius = 45;
+        let camRadius = 55;
         let targetCamTheta = Math.PI / 2;
         let targetCamElevation = 0.55;
-        let targetCamRadius = 45;
+        let targetCamRadius = 55;
 
         let gCamYaw = 0;
         let gCamPitch = 0.2;
@@ -553,11 +562,12 @@
             sunMesh.position.set(-35, 0, 0);
             universeGroup.add(sunMesh);
 
-            const sunLight = new THREE.DirectionalLight(0xffffff, 1.8);
-            sunLight.position.set(-35, 0, 0);
-            sunLight.target.position.set(0, 0, 0);
-            universeGroup.add(sunLight);
-            universeGroup.add(sunLight.target);
+            // 変更点：sunLight を uSunLight に書き換え、古いコードを削除
+            uSunLight = new THREE.DirectionalLight(0xffffff, 1.8);
+            uSunLight.position.set(-35, 0, 0);
+            uSunLight.target.position.set(0, 0, 0);
+            universeGroup.add(uSunLight);
+            universeGroup.add(uSunLight.target);
 
             const ambientLight = new THREE.AmbientLight(0x222233, 0.3);
             universeGroup.add(ambientLight);
@@ -759,8 +769,9 @@
 
             dom.addEventListener('wheel', (e) => {
                 e.preventDefault();
+                // 変更点：ズームアウトの上限を 65 から 85 に緩和し、太陽が見切れにくくしました
                 if (state.viewMode === 'space') {
-                    camRadius = Math.max(15, Math.min(65, camRadius + e.deltaY * 0.03));
+                    camRadius = Math.max(15, Math.min(85, camRadius + e.deltaY * 0.03));
                     targetCamRadius = camRadius;
                 }
             }, { passive: false });
@@ -822,7 +833,7 @@
                     camera.position.set(0, 6, targetZ);
                     camera.lookAt(0, 18, 0); 
                 } else {
-                    if (camera.fov !== 45) { camera.fov = 45; camera.updateProjectionMatrix(); }
+                    if (camera.fov !== 85) { camera.fov = 85; camera.updateProjectionMatrix(); } 
                     if (isAnimatingToPreset) {
                         gCamYaw += (targetGCamYaw - gCamYaw) * 0.18;
                         gCamPitch += (targetGCamPitch - gCamPitch) * 0.18;
@@ -864,7 +875,7 @@
                 
                 targetCamTheta = Math.PI / 2;
                 targetCamElevation = 0.55;
-                targetCamRadius = 45;
+                targetCamRadius = 55;
                 isAnimatingToPreset = true;
                 
             } else {
@@ -879,7 +890,14 @@
                 
                 setGroundMode(state.groundMode === 'overview' ? 'overview' : 'firstPerson');
                 
-                targetGCamYaw = 0; 
+                // 変更点：観測者視点に切り替えた時、最初から月がある方角を向くように計算を追加
+                const moonAngle = (state.moonAge / 29.5) * Math.PI * 2;
+                const timeAngle = ((state.timeHour - 12) / 24) * Math.PI * 2;
+                let diff = (moonAngle - timeAngle) % (Math.PI * 2);
+                if (diff > Math.PI) diff -= Math.PI * 2;
+                if (diff < -Math.PI) diff += Math.PI * 2;
+                
+                targetGCamYaw = diff; 
                 targetGCamPitch = 0.2; 
                 isAnimatingToPreset = true;
             }
@@ -922,10 +940,11 @@
 
         function setPresetView(type) {
             isAnimatingToPreset = true;
-            if (type === 'sun-left') { targetCamTheta = Math.PI / 2; targetCamElevation = 0.35; targetCamRadius = 45; }
-            else if (type === 'sun-right') { targetCamTheta = -Math.PI / 2; targetCamElevation = 0.35; targetCamRadius = 45; }
-            else if (type === 'top-left') { targetCamTheta = Math.PI / 2; targetCamElevation = 1.45; targetCamRadius = 45; }
-            else if (type === 'top-right') { targetCamTheta = -Math.PI / 2; targetCamElevation = 1.45; targetCamRadius = 45; }
+            if (type === 'sun-left') { targetCamTheta = Math.PI / 2; targetCamElevation = 0.35; targetCamRadius = 55; }
+            else if (type === 'sun-right') { targetCamTheta = -Math.PI / 2; targetCamElevation = 0.35; targetCamRadius = 55; }
+            // 変更点：真上ボタンのズーム距離を 45 から 55 に離し、太陽が見切れないようにしました
+            else if (type === 'top-left') { targetCamTheta = Math.PI / 2; targetCamElevation = 1.45; targetCamRadius = 55; }
+            else if (type === 'top-right') { targetCamTheta = -Math.PI / 2; targetCamElevation = 1.45; targetCamRadius = 55; }
         }
 
         function setGroundPreset(dir) {
@@ -961,14 +980,35 @@
         /* ==========================================================================
            3. 3D位置計算とアニメーションループ
            ========================================================================== */
+        // 変更点：天体固定モード用の計算ロジック（条件分岐）を追加しました
         function update3DPositions() {
             if (universeGroup && universeGroup.visible) {
                 const orbitRadius = 14;
                 const moonAngle = (state.moonAge / 29.5) * Math.PI * 2;
-                moonMesh.position.x = -orbitRadius * Math.cos(moonAngle);
-                moonMesh.position.z = orbitRadius * Math.sin(moonAngle);
+                
+                if (state.orbitMode === 'moonMoves') {
+                    // 月が動く（標準）
+                    moonMesh.position.x = -orbitRadius * Math.cos(moonAngle);
+                    moonMesh.position.z = orbitRadius * Math.sin(moonAngle);
+                    sunMesh.position.set(-35, 0, 0);
+                    sunRaysGroup.rotation.y = 0;
+                } else {
+                    // 月を固定し、太陽が動く（相対位置モード）
+                    moonMesh.position.x = -orbitRadius;
+                    moonMesh.position.z = 0;
+                    const sunAng = Math.PI + moonAngle;  // 【修正】マイナスをプラスに変更
+                    sunMesh.position.set(35 * Math.cos(sunAng), 0, 35 * Math.sin(sunAng));
+                    sunRaysGroup.rotation.y = moonAngle; // 【修正】マイナスを外す
+                }
+                
+                // 太陽メッシュの位置に光源を合わせる
+                if (uSunLight) uSunLight.position.copy(sunMesh.position);
 
-                const timeAngle = ((state.timeHour - 12) / 24) * Math.PI * 2;
+                let timeAngle = ((state.timeHour - 12) / 24) * Math.PI * 2;
+                if (state.orbitMode === 'sunMoves') {
+                    // 太陽が移動した角度分だけ、地球のお昼の基準も一緒に回転させる
+                    timeAngle -= (state.moonAge / 29.5) * Math.PI * 2;
+                }
                 earthGroup.rotation.y = timeAngle;
             }
 
@@ -1255,7 +1295,8 @@
             const playBtn = document.getElementById('playBtn'); const playIcon = document.getElementById('playIcon'); const playText = document.getElementById('playText');
             if (state.isPlaying) {
                 playBtn.className = "bg-rose-500 hover:bg-rose-400 text-white font-black px-4 py-2.5 rounded-xl transition flex items-center gap-2 shadow-lg text-xs sm:text-sm";
-                playIcon.className = "fa-solid fa-pause"; playText.innerHTML = "一時停止";
+                // 変更点：停止ボタンの文字をわかりやすく変更
+                playIcon.className = "fa-solid fa-pause"; playText.innerHTML = "公転を一時停止";
             } else {
                 playBtn.className = "bg-amber-400 hover:bg-amber-300 text-slate-950 font-black px-4 py-2.5 rounded-xl transition flex items-center gap-2 shadow-lg shadow-amber-500/20 text-xs sm:text-sm";
                 playIcon.className = "fa-solid fa-play"; playText.innerHTML = "月を公転させる";
@@ -1267,7 +1308,8 @@
             const playBtn = document.getElementById('playEarthBtn'); const playIcon = document.getElementById('playEarthIcon'); const playText = document.getElementById('playEarthText');
             if (state.isPlayingEarth) {
                 playBtn.className = "bg-rose-500 hover:bg-rose-400 text-white font-black px-4 py-2.5 rounded-xl transition flex items-center gap-2 shadow-lg text-xs sm:text-sm";
-                playIcon.className = "fa-solid fa-pause"; playText.innerHTML = "一時停止";
+                // 変更点：停止ボタンの文字をわかりやすく変更
+                playIcon.className = "fa-solid fa-pause"; playText.innerHTML = "自転を一時停止";
             } else {
                 playBtn.className = "bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-black px-4 py-2.5 rounded-xl transition flex items-center gap-2 shadow-lg shadow-emerald-500/20 text-xs sm:text-sm";
                 playIcon.className = "fa-solid fa-play"; playText.innerHTML = "地球を自転させる";
@@ -1408,6 +1450,22 @@
         /* ==========================================================================
            10. アプリ初期化
            ========================================================================== */
+        // 変更点：天体固定モード用の切り替え関数を追加しました
+        function setOrbitMode(mode) {
+            state.orbitMode = mode;
+            const btnMoon = document.getElementById('btnOrbitMoon');
+            const btnSun = document.getElementById('btnOrbitSun');
+            
+            if (mode === 'moonMoves') {
+                btnMoon.className = "flex-1 py-1.5 rounded bg-slate-700 text-white font-bold transition shadow";
+                btnSun.className = "flex-1 py-1.5 rounded text-slate-400 hover:text-white transition";
+            } else {
+                btnMoon.className = "flex-1 py-1.5 rounded text-slate-400 hover:text-white transition";
+                btnSun.className = "flex-1 py-1.5 rounded bg-amber-600 text-white font-bold transition shadow";
+            }
+            updateAllViews();
+        }
+
         window.onload = function() {
             init3D();
             renderGallery();
