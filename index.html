@@ -295,7 +295,7 @@
                                 <span>2. 地球の時刻（自転）</span>
                             </label>
                             <span class="bg-emerald-400/10 text-emerald-300 px-2.5 py-0.5 rounded border border-emerald-400/20 text-xs sm:text-sm font-black">
-                                <span id="timeDisplay" class="text-sm sm:text-base font-black">18:00</span>
+                                <span id="timeDisplay" class="text-sm sm:text-base font-black">00:00</span>
                             </span>
                         </div>
                         <input id="timeSlider" type="range" min="0" max="24" step="0.5" value="0" 
@@ -1060,7 +1060,7 @@ function setGroundMode(mode) {
                 
                 gSunMesh.position.set(sx, sy, sz);
 
-                const moonHourAngle = hourAngle - (state.moonAge / 29.5) * (Math.PI * 2);
+                const moonHourAngle = getMoonHourAngle();
                 
                 const mx = R_MOON * Math.sin(moonHourAngle);
                 const my = R_MOON * Math.cos(moonHourAngle) * Math.sin(55 * Math.PI / 180);
@@ -1190,6 +1190,11 @@ function setGroundMode(mode) {
             const bulgeWidth = Math.abs(cosP) * r;
             const darkColor = '#1e293b';
 
+            // 月齢29.5日は再び新月。端数によって三日月のように残らないよう、
+            // 周期の端では明確に「新月」を描画する。
+            const phaseDistance = Math.min(phaseAngle, Math.PI * 2 - phaseAngle);
+            const isNewMoon = phaseDistance < 0.000001;
+
             ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
             ctx.fillStyle = darkColor; ctx.fill();
             ctx.strokeStyle = '#475569'; ctx.lineWidth = 2; ctx.stroke();
@@ -1200,7 +1205,10 @@ function setGroundMode(mode) {
             ctx.save();
             ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.clip();
 
-            if (state.moonAge >= 0 && state.moonAge <= 7.375) {
+            if (isNewMoon) {
+                // 新月：月面全体を暗くする。
+                ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fillStyle = darkColor; ctx.fill();
+            } else if (state.moonAge > 0 && state.moonAge <= 7.375) {
                 ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI / 2, Math.PI / 2, false); ctx.fillStyle = litGrad; ctx.fill();
                 ctx.beginPath(); ctx.ellipse(cx, cy, bulgeWidth, r, 0, -Math.PI / 2, Math.PI / 2, false); ctx.fillStyle = darkColor; ctx.fill();
             } else if (state.moonAge > 7.375 && state.moonAge <= 14.75) {
@@ -1243,21 +1251,61 @@ function setGroundMode(mode) {
             else return '夜中';
         }
 
-        function calculateMoonDirectionAndAltitude() {
-            const moonAngle = (state.moonAge / 29.5) * Math.PI * 2;
-            const personAngle = ((state.timeHour - 12) / 24) * Math.PI * 2;
-            let diff = (moonAngle - personAngle) % (Math.PI * 2);
-            if (diff > Math.PI) diff -= Math.PI * 2;
-            if (diff < -Math.PI) diff += Math.PI * 2;
+        function normalizeAngle(angle) {
+            const twoPi = Math.PI * 2;
+            let a = angle % twoPi;
+            if (a > Math.PI) a -= twoPi;
+            if (a <= -Math.PI) a += twoPi;
+            return a;
+        }
 
-            let direction = "見えません（地平線の下）"; let altitude = "地平線の下"; let isVisible = false;
-            if (diff >= -Math.PI * 0.55 && diff <= Math.PI * 0.55) {
-                isVisible = true;
-                if (diff > Math.PI * 0.25) { direction = "東の空（のぼってくる）"; altitude = "低くのぼる"; } 
-                else if (diff < -Math.PI * 0.25) { direction = "西の空（しずみかけ）"; altitude = "低く見える"; } 
-                else { direction = "南の空（高い）"; altitude = "一番高く見える！"; }
+        // 観測者視点の3D表示で実際に使っている月の時角。
+        // update3DPositions() と方角判定で同じ値を使うことで、表示を完全に一致させる。
+        function getMoonHourAngle() {
+            const hourAngle = (state.timeHour - 12) * (Math.PI / 12);
+            const phaseAngle = (state.moonAge / 29.5) * (Math.PI * 2);
+            return normalizeAngle(hourAngle - phaseAngle);
+        }
+
+        function calculateMoonDirectionAndAltitude() {
+            const moonHourAngle = getMoonHourAngle();
+            const cosAngle = Math.cos(moonHourAngle);
+
+            // 新月は3D上では月が太陽と同じ方向にあるが、地球からは照らされていない面を見るため観察できない。
+            // ここでは「地平線より上か」と「実際に見えるか」を分離する。
+            const phaseAngle = (state.moonAge / 29.5) * (Math.PI * 2);
+            const phaseDistance = Math.min(phaseAngle, Math.PI * 2 - phaseAngle);
+            const isNewMoon = phaseDistance < 0.000001;
+
+            const aboveHorizon = cosAngle >= -0.000001;
+            let direction = "見えません（地平線の下）";
+            let altitude = "地平線の下";
+            let isVisible = false;
+
+            if (aboveHorizon) {
+                if (moonHourAngle < -Math.PI * 0.25) {
+                    direction = "東の空（のぼってくる）";
+                    altitude = "低くのぼる";
+                } else if (moonHourAngle > Math.PI * 0.25) {
+                    direction = "西の空（しずみかけ）";
+                    altitude = "低く見える";
+                } else {
+                    direction = "南の空（高い）";
+                    altitude = "一番高く見える！";
+                }
+
+                if (isNewMoon) {
+                    direction = "太陽と同じ方向（新月）";
+                    altitude = "見えません（新月）";
+                } else {
+                    isVisible = true;
+                }
+            } else if (isNewMoon) {
+                direction = "太陽と同じ方向（新月）";
+                altitude = "見えません（新月）";
             }
-            return { direction, altitude, isVisible };
+
+            return { direction, altitude, isVisible, aboveHorizon, isNewMoon, moonHourAngle };
         }
 
         function updateSkyBackground() {
