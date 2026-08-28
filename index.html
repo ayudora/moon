@@ -1349,9 +1349,13 @@ function setGroundMode(mode) {
             document.getElementById('altitudeText').innerText = posInfo.altitude;
 
             document.getElementById('explanationTitle').innerHTML = `<ruby>${phase.name}<rt>${phase.ruby}</rt></ruby> の特徴`;
+
+            // 「見やすい時間」は現在時刻ではなく、月齢ごとの説明として表示する。
+            // state.timeHour はここでは使用しない。
+            const viewingTime = phase.visibleTime;
             document.getElementById('explanationBody').innerHTML = `
                 ${phase.explanation}<br>
-                <span class="text-amber-300 font-bold mt-1.5 block">💡 見やすい時間：${phase.visibleTime}</span>
+                <span class="text-amber-300 font-bold mt-1.5 block">💡 見やすい時間：${viewingTime}</span>
             `;
 
             updateSkyBackground();
