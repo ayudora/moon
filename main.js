@@ -174,7 +174,7 @@ function updateAllViews() {
     document.getElementById('timeDisplay').innerText = timeStr;
     document.getElementById('timeNameVal').innerHTML = getTimeNameHtml(state.timeHour);
 
-    if (typeof update3DPositions === 'function') update3DPositions();
+    if (window.ThreeViewer) ThreeViewer.updatePositions();
     MoonCanvas.draw();
 
     const phase = getCurrentPhaseInfo();
@@ -323,7 +323,7 @@ function switchTab(tab) {
         if (t === tab) { view.classList.remove('hidden'); view.classList.add('flex'); btn.classList.add('active'); } 
         else { view.classList.add('hidden'); view.classList.remove('flex'); btn.classList.remove('active'); }
     });
-    if (tab === 'observe' && typeof onWindowResize === 'function') setTimeout(onWindowResize, 100);
+    if (tab === 'observe' && window.ThreeViewer) setTimeout(ThreeViewer.onWindowResize, 100);
 }
 
 function setOrbitMode(mode) {
@@ -333,13 +333,11 @@ function setOrbitMode(mode) {
     state.orbitMode = mode;
     
     const moonAngle = (state.moonAge / 29.5) * Math.PI * 2;
-    if (typeof camTheta !== 'undefined' && typeof targetCamTheta !== 'undefined') {
+    if (window.ThreeViewer) {
         if (prevMode === 'moonMoves' && mode === 'sunMoves') {
-            camTheta += moonAngle;
-            targetCamTheta += moonAngle;
+            ThreeViewer.shiftCameraAngle(moonAngle);
         } else if (prevMode === 'sunMoves' && mode === 'moonMoves') {
-            camTheta -= moonAngle;
-            targetCamTheta -= moonAngle;
+            ThreeViewer.shiftCameraAngle(-moonAngle);
         }
     }
 
@@ -354,7 +352,7 @@ function setOrbitMode(mode) {
     if (mode === 'moonMoves') {
         btnMoon.className = activeClass;
         btnSun.className = inactiveClass;
-        if (typeof sunRaysGroup !== 'undefined') sunRaysGroup.visible = state.showRays;
+        if (window.ThreeViewer) ThreeViewer.setSunRaysVisible(state.showRays);
         if (btnRays) {
             btnRays.style.opacity = "1";
             btnRays.style.pointerEvents = "auto";
@@ -362,7 +360,7 @@ function setOrbitMode(mode) {
     } else {
         btnMoon.className = inactiveClass;
         btnSun.className = activeClassAmber;
-        if (typeof sunRaysGroup !== 'undefined') sunRaysGroup.visible = false;
+        if (window.ThreeViewer) ThreeViewer.setSunRaysVisible(false);
         if (btnRays) {
             btnRays.style.opacity = "0.4";
             btnRays.style.pointerEvents = "none";
@@ -561,7 +559,7 @@ const FullscreenManager = {
 
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
-                if (typeof onWindowResize === 'function') onWindowResize();
+                if (window.ThreeViewer) ThreeViewer.onWindowResize();
             });
         });
     },
@@ -579,9 +577,9 @@ const FullscreenManager = {
             this.unlockBodyScroll();
 
             requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    if (typeof onWindowResize === 'function') onWindowResize();
-                    window.scrollTo(0, this.scrollY);
+            requestAnimationFrame(() => {
+                if (window.ThreeViewer) ThreeViewer.onWindowResize();
+                window.scrollTo(0, this.scrollY);
                     if (this.previousActiveElement && typeof this.previousActiveElement.focus === 'function') {
                         try { this.previousActiveElement.focus({ preventScroll: true }); } catch (_) {}
                     }
@@ -589,7 +587,7 @@ const FullscreenManager = {
                 });
             });
         } else {
-            if (typeof onWindowResize === 'function') onWindowResize();
+            if (window.ThreeViewer) ThreeViewer.onWindowResize();
         }
     },
 
@@ -598,7 +596,7 @@ const FullscreenManager = {
         const container = document.getElementById('canvas3d-container');
         if (!container) return;
         this.resizeObserver = new ResizeObserver(() => {
-            if (typeof renderer !== 'undefined' && typeof camera !== 'undefined' && typeof onWindowResize === 'function') onWindowResize();
+            if (window.ThreeViewer) ThreeViewer.onWindowResize();
         });
         this.resizeObserver.observe(container);
         
@@ -611,32 +609,22 @@ const FullscreenManager = {
 };
 
 /* ==========================================================================
-   7. アプリ初期化
-   ========================================================================== */
-window.onload = function() {
-    if (typeof init3D === 'function') init3D();
-    FullscreenManager.initObserver();
-    GalleryManager.render();
-    QuizManager.start();
-    updateAllViews();
-};
-
-/* ==========================================================================
    8. イベント一括登録 (EventBinder)
    ========================================================================== */
 const EventBinder = {
     init: function() {
         // 主要なボタンのイベントをJS側で一括登録
         const bindings = {
+            // --- 既存の登録 ---
             'todayMoonBtn': setTodayMoon,
             'tab-observe': () => switchTab('observe'),
             'tab-gallery': () => switchTab('gallery'),
             'tab-quiz': () => switchTab('quiz'),
-            'btnViewSpace': () => setViewMode('space'),
-            'btnViewGround': () => setViewMode('ground'),
-            'btnGroundFP': () => setGroundMode('firstPerson'),
-            'btnGroundOV': () => setGroundMode('overview'),
-            'btnRays': toggleSunRays,
+            'btnViewSpace': () => ThreeViewer.setViewMode('space'),
+            'btnViewGround': () => ThreeViewer.setViewMode('ground'),
+            'btnGroundFP': () => ThreeViewer.setGroundMode('firstPerson'),
+            'btnGroundOV': () => ThreeViewer.setGroundMode('overview'),
+            'btnRays': ThreeViewer.toggleSunRays,
             'playBtn': togglePlay,
             'fsPlayBtn': togglePlay,
             'playEarthBtn': togglePlayEarth,
@@ -651,9 +639,45 @@ const EventBinder = {
             'fs-speed-20': () => setSpeed(2.0),
             'btnOrbitMoon': () => setOrbitMode('moonMoves'),
             'btnOrbitSun': () => setOrbitMode('sunMoves'),
-            'nextQuizBtn': () => QuizManager.next()
+            'nextQuizBtn': () => QuizManager.next(),
+
+            // --- 新しく追加したIDの登録 ---
+            // 宇宙視点プリセット
+            'btnPresetSunLeft': () => ThreeViewer.setPresetView('sun-left'),
+            'btnPresetSunRight': () => ThreeViewer.setPresetView('sun-right'),
+            'btnPresetTopLeft': () => ThreeViewer.setPresetView('top-left'),
+            'btnPresetTopRight': () => ThreeViewer.setPresetView('top-right'),
+            'btnResetCamera': ThreeViewer.resetCamera,
+
+            // 観測者視点プリセット
+            'btnGroundSouth': () => ThreeViewer.setGroundPreset('south'),
+            'btnGroundEast': () => ThreeViewer.setGroundPreset('east'),
+            'btnGroundWest': () => ThreeViewer.setGroundPreset('west'),
+            'btnGroundZenith': () => ThreeViewer.setGroundPreset('zenith'),
+
+            // ズーム操作
+            'btnZoomIn': () => ThreeViewer.zoomCamera(-10),
+            'btnZoomOut': () => ThreeViewer.zoomCamera(10),
+
+            // 月齢指定
+            'btnAge0': () => setMoonAge(0),
+            'btnAge7': () => setMoonAge(7.4),
+            'btnAge14': () => setMoonAge(14.8),
+            'btnAge22': () => setMoonAge(22.1),
+            'btnAge29': () => setMoonAge(29.5),
+
+            // 時刻指定
+            'btnTime0': () => setTimeVal(0),
+            'btnTime6': () => setTimeVal(6),
+            'btnTime12': () => setTimeVal(12),
+            'btnTime18': () => setTimeVal(18),
+            'btnTime24': () => setTimeVal(24),
+
+            // クイズリトライ
+            'retryQuizBtn': () => QuizManager.start()
         };
 
+        // bindingsに登録されたIDと関数をすべてaddEventListenerで紐付け
         for (const [id, func] of Object.entries(bindings)) {
             const el = document.getElementById(id);
             if (el) {
@@ -662,7 +686,7 @@ const EventBinder = {
             }
         }
 
-        // ★修正ポイント：すべての全画面表示ボタンを自動で紐付ける
+        // 全画面表示ボタンを自動で紐付ける
         document.querySelectorAll('[data-fullscreen-button]').forEach(btn => {
             btn.addEventListener('click', function() {
                 const targetId = this.getAttribute('data-fullscreen-button');
@@ -670,12 +694,6 @@ const EventBinder = {
             });
             btn.removeAttribute('onclick');
         });
-
-        const retryBtn = document.querySelector('#quizComplete button');
-        if (retryBtn) {
-            retryBtn.addEventListener('click', () => QuizManager.start());
-            retryBtn.removeAttribute('onclick');
-        }
     }
 };
 
@@ -683,7 +701,7 @@ const EventBinder = {
    9. アプリ初期化
    ========================================================================== */
 window.onload = function() {
-    if (typeof init3D === 'function') init3D();
+    if (window.ThreeViewer) ThreeViewer.init();
     FullscreenManager.initObserver();
     GalleryManager.render();
     QuizManager.start();
