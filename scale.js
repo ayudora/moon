@@ -131,40 +131,48 @@ const rayToggle = document.getElementById("rayToggle");
 // 実際につまみが吸い付いた時の中心位置と一致させる。
 // ------------------------------------------------------------------
 const TICK_BODIES = [
-  { label: "太陽", distance: DATA.sun.distance },
-  { label: "水星", distance: DATA.mercury.distance },
-  { label: "金星", distance: DATA.venus.distance },
-  { label: "地球・月", distance: DATA.earth.distance },
-  { label: "火星", distance: DATA.mars.distance },
-  { label: "木星", distance: DATA.jupiter.distance },
-  { label: "土星", distance: DATA.saturn.distance },
-  { label: "天王星", distance: DATA.uranus.distance },
-  { label: "海王星", distance: DATA.neptune.distance },
-  { label: "冥王星", distance: DATA.pluto.distance },
+  { key: "sun", label: "太陽", distance: DATA.sun.distance },
+  { key: "mercury", label: "水星", distance: DATA.mercury.distance },
+  { key: "venus", label: "金星", distance: DATA.venus.distance },
+  { key: "earth", label: "地球・月", distance: DATA.earth.distance },
+  { key: "mars", label: "火星", distance: DATA.mars.distance },
+  { key: "jupiter", label: "木星", distance: DATA.jupiter.distance },
+  { key: "saturn", label: "土星", distance: DATA.saturn.distance },
+  { key: "uranus", label: "天王星", distance: DATA.uranus.distance },
+  { key: "neptune", label: "海王星", distance: DATA.neptune.distance },
+  { key: "pluto", label: "冥王星", distance: DATA.pluto.distance },
 ];
 
 function renderSliderTicks() {
   sliderTicksContainer.innerHTML = "";
   TICK_BODIES.forEach((body, i) => {
     const t = distanceToSliderValue(body.distance) / POS_SLIDER_MAX;
-    const span = document.createElement("span");
-    span.textContent = body.label;
+    const btn = document.createElement("button");
+    btn.type = "button";
+    // 押しやすいボタンスタイル（背景色・枠線・影・タップ時の縮小アニメーション）
+    btn.className =
+      "absolute whitespace-nowrap cursor-pointer text-[10px] px-1.5 py-0.5 rounded-md bg-slate-800/90 hover:bg-slate-700 hover:text-amber-300 border border-slate-700/80 hover:border-amber-400/50 transition shadow-sm z-20 flex items-center gap-1 active:scale-95";
+    btn.style.left = `calc((100% - 24px) * ${t} + 12px)`;
+    btn.style.transform = "translateX(-50%)";
+    btn.style.top = i % 2 === 0 ? "0px" : "16px";
 
-    // クリックできるようにカーソルを変更し、ホバー時の文字色変化を追加
-    // タップしやすいように p-1 と -m-1 で見た目を変えずに当たり判定（クリック領域）を広げています
-    span.className =
-      "absolute whitespace-nowrap cursor-pointer hover:text-amber-300 transition-colors p-1 -m-1 z-20";
-    span.style.left = `calc((100% - 24px) * ${t} + 12px)`;
-    span.style.transform = "translateX(-50%)";
-    span.style.top = i % 2 === 0 ? "0px" : "16px";
+    // 星の色の小さなカラー丸
+    const dot = document.createElement("span");
+    dot.className = "w-1.5 h-1.5 rounded-full inline-block shrink-0";
+    dot.style.background = DATA[body.key] ? DATA[body.key].color : "#ffffff";
+    btn.appendChild(dot);
 
-    // 文字をクリックしたときにその星の位置へ一瞬でカメラを移動
-    span.addEventListener("click", () => {
+    // 星の名前テキスト
+    const text = document.createElement("span");
+    text.textContent = body.label;
+    btn.appendChild(text);
+
+    btn.addEventListener("click", () => {
       updateCameraPosition(body.distance, true);
       hideHint();
     });
 
-    sliderTicksContainer.appendChild(span);
+    sliderTicksContainer.appendChild(btn);
   });
 }
 renderSliderTicks();
@@ -353,16 +361,17 @@ function draw() {
   const screenY = height / 2;
 
   if (showRays) {
+    const rayLength = POS_MAX * 1.1; // 冥王星の先（約66億km）まで光線を伸ばす
     ctx.beginPath();
     ctx.moveTo(sunScreenX, screenY);
     ctx.lineTo(
-      sunScreenX + Math.cos(angle) * 20000 * currentScale,
-      screenY - Math.sin(angle) * 20000 * currentScale,
+      sunScreenX + Math.cos(angle) * rayLength * currentScale,
+      screenY - Math.sin(angle) * rayLength * currentScale,
     );
     ctx.moveTo(sunScreenX, screenY);
     ctx.lineTo(
-      sunScreenX + Math.cos(-angle) * 20000 * currentScale,
-      screenY - Math.sin(-angle) * 20000 * currentScale,
+      sunScreenX + Math.cos(-angle) * rayLength * currentScale,
+      screenY - Math.sin(-angle) * rayLength * currentScale,
     );
 
     ctx.strokeStyle = "rgba(253, 224, 71, 0.55)";
@@ -443,12 +452,60 @@ btnScaleReset.addEventListener("click", () => {
 // ------------------------------------------------------------------
 // マウス／タッチ操作：ドラッグでパン、ホイール／ピンチでズーム
 // ------------------------------------------------------------------
+// ------------------------------------------------------------------
+// マウス／タッチ操作：ドラッグでパン、ホイール／ピンチでズーム、星タップでジャンプ
+// ------------------------------------------------------------------
 let isDragging = false;
 let dragStartScreenX = 0;
 let dragStartCameraX = 0;
-const activePointers = new Map(); // pointerId -> {x, y}
+let pointerDownPos = { x: 0, y: 0 }; // タップとドラッグを区別するための記録
+const activePointers = new Map();
 let pinchStartDist = null;
 let pinchStartZoom = null;
+
+// クリックされた位置に星や星の名前があるかを判定する関数
+function findClickedPlanet(clientX, clientY) {
+  const rect = canvas.getBoundingClientRect();
+  const clickX = clientX - rect.left;
+  const clickY = clientY - rect.top;
+  const currentScale = getCurrentScale();
+  const bodies = Object.keys(DATA);
+
+  for (let i = 0; i < bodies.length; i++) {
+    const key = bodies[i];
+    const planet = DATA[key];
+    const screenX = (planet.distance - cameraX) * currentScale + width / 2;
+    const screenY = height / 2;
+    const screenRadius = planet.radius * currentScale;
+    const dotRadius = Math.max(screenRadius, 2.5);
+
+    // 星本体の判定（タップしやすいように最低半径18pxを確保）
+    const distToStar = Math.hypot(clickX - screenX, clickY - screenY);
+    if (distToStar <= Math.max(dotRadius + 8, 18)) {
+      return planet;
+    }
+
+    // 名前ラベルの判定
+    const labelRow = i % 2 === 1;
+    const labelY = screenY - dotRadius - 10 - (labelRow ? 14 : 0);
+    const labelHalfWidth = (planet.name.length * 13) / 2 + 8;
+    if (
+      Math.abs(clickX - screenX) <= labelHalfWidth &&
+      clickY >= labelY - 16 &&
+      clickY <= labelY + 8
+    ) {
+      return planet;
+    }
+  }
+  return null;
+}
+
+// マウスが星の上に乗った時にカーソルを「指マーク（pointer）」に変える
+canvas.addEventListener("mousemove", (e) => {
+  if (isDragging) return;
+  const hitPlanet = findClickedPlanet(e.clientX, e.clientY);
+  canvas.style.cursor = hitPlanet ? "pointer" : "grab";
+});
 
 function getPointerDistance() {
   const pts = Array.from(activePointers.values());
@@ -461,6 +518,7 @@ function getPointerDistance() {
 canvas.addEventListener("pointerdown", (e) => {
   canvas.setPointerCapture(e.pointerId);
   activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  pointerDownPos = { x: e.clientX, y: e.clientY };
 
   if (activePointers.size === 1) {
     isDragging = true;
@@ -496,6 +554,19 @@ canvas.addEventListener("pointermove", (e) => {
 });
 
 function endPointer(e) {
+  // 指を離した時、移動量が小さければ「タップ/クリック」とみなして星へジャンプ
+  const moveDist = Math.hypot(
+    e.clientX - pointerDownPos.x,
+    e.clientY - pointerDownPos.y,
+  );
+  if (moveDist < 6 && isDragging) {
+    const hitPlanet = findClickedPlanet(e.clientX, e.clientY);
+    if (hitPlanet) {
+      updateCameraPosition(hitPlanet.distance, true);
+      hideHint();
+    }
+  }
+
   activePointers.delete(e.pointerId);
   if (activePointers.size < 2) {
     pinchStartDist = null;
