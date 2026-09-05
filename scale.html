@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body
-    class="bg-slate-950 text-slate-100 min-h-screen flex flex-col overflow-x-hidden select-none"
+    class="bg-slate-950 text-slate-100 h-screen flex flex-col overflow-hidden select-none"
   >
     <!-- ヘッダーバー -->
     <header
@@ -61,11 +61,11 @@
     </header>
 
     <main
-      class="flex-1 flex flex-col p-2 md:p-4 max-w-7xl w-full mx-auto gap-4"
+      class="flex-1 min-h-0 flex flex-col p-2 md:p-3 max-w-7xl w-full mx-auto gap-2 md:gap-3"
     >
       <!-- スケール描画キャンバス -->
       <div
-        class="bg-black border-2 border-slate-700 rounded-2xl relative overflow-hidden flex-1 min-h-[300px] shadow-2xl flex items-center justify-center"
+        class="bg-black border-2 border-slate-700 rounded-2xl relative overflow-hidden flex-1 min-h-0 shadow-2xl flex items-center justify-center"
         id="canvasContainer"
       >
         <canvas
@@ -186,7 +186,7 @@
 
       <!-- スライドバー操作パネル -->
       <div
-        class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col gap-4"
+        class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3 md:p-4 shadow-xl flex flex-col gap-2 md:gap-3 shrink-0"
       >
         <div class="flex flex-col md:flex-row gap-6">
           <!-- 見える位置（カメラの移動） -->
