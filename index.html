@@ -1,442 +1,861 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>月の満ち欠け 学習 - 月と地球と太陽</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800&display=swap"
+      rel="stylesheet"
+    />
     <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
 
-    <style>
-    </style>
-</head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col overflow-x-hidden select-none">
-
+    <style></style>
+  </head>
+  <body
+    class="bg-slate-950 text-slate-100 min-h-screen flex flex-col overflow-x-hidden select-none"
+  >
     <!-- ヘッダーバー -->
-    <header class="bg-slate-900/90 border-b border-slate-800 sticky top-0 z-50 backdrop-blur-md px-4 py-2.5 flex flex-wrap justify-between items-center gap-2">
-        <div class="flex items-center gap-3">
-            <div class="bg-amber-400 text-slate-950 p-2 rounded-xl text-xl font-black flex items-center justify-center w-10 h-10 shadow-lg shadow-amber-500/20">
-                <i class="fa-solid font-bold fa-moon"></i>
-            </div>
-            <div>
-                <h1 class="text-lg md:text-xl font-bold tracking-wide text-amber-300 flex items-center gap-2">
-                    月の満ち欠け 学習
-                </h1>
-                <p class="text-xs text-slate-400 hidden sm:block">〜 月と地球と太陽の位置関係をつかもう 〜</p>
-            </div>
+    <header
+      class="bg-slate-900/90 border-b border-slate-800 sticky top-0 z-50 backdrop-blur-md px-4 py-2.5 flex flex-wrap justify-between items-center gap-2"
+    >
+      <div class="flex items-center gap-3">
+        <div
+          class="bg-amber-400 text-slate-950 p-2 rounded-xl text-xl font-black flex items-center justify-center w-10 h-10 shadow-lg shadow-amber-500/20"
+        >
+          <i class="fa-solid font-bold fa-moon"></i>
         </div>
-
-        <!-- 今日の月 & モード切替 -->
-        <div class="flex items-center gap-2 md:gap-4">
-            <button id="todayMoonBtn" class="bg-slate-800 hover:bg-slate-700 text-xs md:text-sm px-3 py-1.5 rounded-lg border border-slate-700 flex items-center gap-1.5 transition">
-                <i class="fa-solid fa-calendar-day text-amber-400"></i>
-                <span>きょうの月</span>
-            </button>
-
-            <div class="flex bg-slate-800/80 p-1 rounded-xl border border-slate-700/80 text-xs md:text-sm">
-                <button id="tab-observe" class="tab-btn active px-3.5 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-globe"></i>
-                    <span>観察</span>
-                </button>
-                <button id="tab-gallery" class="tab-btn px-3.5 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-book-open"></i>
-                    <span>図鑑</span>
-                </button>
-                <button id="tab-quiz" class="tab-btn px-3.5 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-circle-question"></i>
-                    <span>クイズ</span>
-                </button>
-            </div>
+        <div>
+          <h1
+            class="text-lg md:text-xl font-bold tracking-wide text-amber-300 flex items-center gap-2"
+          >
+            月の満ち欠け 学習
+          </h1>
+          <p class="text-xs text-slate-400 hidden sm:block">
+            〜 月と地球と太陽の位置関係をつかもう 〜
+          </p>
         </div>
+      </div>
+
+      <!-- 今日の月 & モード切替 -->
+      <div class="flex items-center gap-2 md:gap-4">
+        <button
+          id="todayMoonBtn"
+          class="bg-slate-800 hover:bg-slate-700 text-xs md:text-sm px-3 py-1.5 rounded-lg border border-slate-700 flex items-center gap-1.5 transition"
+        >
+          <i class="fa-solid fa-calendar-day text-amber-400"></i>
+          <span>きょうの月</span>
+        </button>
+
+        <div
+          class="flex bg-slate-800/80 p-1 rounded-xl border border-slate-700/80 text-xs md:text-sm"
+        >
+          <button
+            id="tab-observe"
+            class="tab-btn active px-3.5 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5"
+          >
+            <i class="fa-solid fa-globe"></i>
+            <span>観察</span>
+          </button>
+          <button
+            id="tab-gallery"
+            class="tab-btn px-3.5 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5"
+          >
+            <i class="fa-solid fa-book-open"></i>
+            <span>図鑑</span>
+          </button>
+          <button
+            id="tab-quiz"
+            class="tab-btn px-3.5 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5"
+          >
+            <i class="fa-solid fa-circle-question"></i>
+            <span>クイズ</span>
+          </button>
+        </div>
+        <a
+          href="scale.html"
+          class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs md:text-sm px-3.5 py-2 rounded-xl border border-indigo-500 flex items-center gap-1.5 transition shadow-lg ml-1 sm:ml-2"
+        >
+          <i class="fa-solid fa-rocket"></i>
+          <span class="hidden sm:inline">宇宙のスケール</span>
+        </a>
+      </div>
     </header>
 
     <!-- メインコンテンツ -->
-    <main class="flex-1 flex flex-col p-2 md:p-4 max-w-7xl w-full mx-auto gap-4">
-
-        <!-- ===== 1. 観察モード (OBSERVE TAB) ===== -->
-        <section id="view-observe" class="flex-1 flex flex-col gap-4">
-            
-            <!-- 視点ビューワー（上下/左右分割） -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1 min-h-[440px]">
-                
-                <!-- 宇宙視点 / 観測者視点 (3D Three.js Visualizer) -->
-                <div id="viewer-3d" class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl p-3 flex flex-col relative overflow-hidden shadow-xl min-h-[320px]">
-                    
-                    <!-- モード切り替えタブ -->
-                    <div class="absolute top-3 left-3 z-20 flex bg-slate-950/80 p-1 rounded-xl border border-slate-800 shadow backdrop-blur-md">
-                        <button id="btnViewSpace" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-indigo-600 text-white flex items-center gap-1.5 shadow">
-                            <i class="fa-solid fa-earth-americas"></i> 宇宙視点
-                        </button>
-                        <button id="btnViewGround" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition text-slate-400 hover:text-white flex items-center gap-1.5 hover:bg-slate-800">
-                            <i class="fa-solid fa-person"></i> 観測者視点
-                        </button>
-                    </div>
-
-                    <!-- 観測者視点用のサブモード -->
-                    <div id="groundSubModeToggle" class="absolute top-14 left-3 z-20 hidden flex-row gap-1 bg-slate-950/80 p-1 rounded-xl border border-slate-800 shadow backdrop-blur-md">
-                        <button id="btnGroundFP" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-emerald-600 text-white flex items-center gap-1.5 shadow">
-                            <i class="fa-solid fa-person"></i> 見回す
-                        </button>
-                        <button id="btnGroundOV" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition text-slate-400 hover:text-white flex items-center gap-1.5 hover:bg-slate-800">
-                            <i class="fa-solid fa-panorama"></i> 軌道(模式図)
-                        </button>
-                    </div>
-
-                    <!-- 操作ヒント -->
-                    <div class="absolute bottom-20 left-3 z-10 flex items-center gap-1.5 bg-slate-950/80 border border-slate-800 px-3 py-1.5 rounded-xl backdrop-blur-md shadow" id="dragHintLabel">
-                        <i class="fa-solid fa-arrows-up-down-left-right text-indigo-400 text-sm"></i>
-                        <span class="text-xs sm:text-sm font-bold text-slate-200">見回す</span>
-                    </div>
-
-                    <!-- 宇宙用視点プリセットボタン -->
-                    <div id="presetSpace" class="absolute top-3 right-3 z-20 flex flex-col items-end gap-1.5 max-w-[240px] sm:max-w-[420px]">
-                        <div class="flex flex-wrap justify-end gap-1.5">
-                            <button id="btnPresetSunLeft" class="bg-slate-950/80 hover:bg-slate-800 border border-slate-800 text-xs px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 text-amber-300 shadow">
-                                <i class="fa-solid fa-arrow-left"></i> 太陽左
-                            </button>
-                            <button id="btnPresetSunRight" class="bg-slate-950/80 hover:bg-slate-800 border border-slate-800 text-xs px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 text-amber-300 shadow">
-                                <i class="fa-solid fa-arrow-right"></i> 太陽右
-                            </button>
-                            <button id="btnPresetTopLeft" class="bg-slate-950/80 hover:bg-slate-800 border border-slate-800 text-xs px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 text-cyan-300 shadow">
-                                <i class="fa-solid fa-arrow-down"></i> 真上(左)
-                            </button>
-                            <button id="btnPresetTopRight" class="bg-slate-950/80 hover:bg-slate-800 border border-slate-800 text-xs px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 text-cyan-300 shadow">
-                                <i class="fa-solid fa-arrow-down"></i> 真上(右)
-                            </button>
-                            <button id="btnRays" class="bg-slate-950/80 hover:bg-slate-800 border border-slate-800 text-xs px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 text-amber-300 shadow">
-                                <i class="fa-solid fa-sun"></i> 光ガイド
-                            </button>
-                            <!-- 3D全画面表示ボタン（リセットの左に配置） -->
-                            <button data-fullscreen-button="viewer-3d" class="bg-slate-900 border border-slate-700 hover:bg-slate-800 text-xs px-2.5 py-1.5 rounded-lg transition flex items-center gap-1.5 text-slate-100 shadow">
-                                <i class="fa-solid fa-expand"></i> 全画面表示
-                            </button>
-                            <button id="btnResetCamera" class="bg-slate-950/80 hover:bg-slate-800 border border-slate-800 text-xs px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 text-slate-300 shadow">
-                                <i class="fa-solid fa-arrow-rotate-left"></i> リセット
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- 観測者用視点プリセットボタン -->
-                    <div id="presetGround" class="absolute top-3 right-3 z-10 hidden flex-col items-end gap-1.5 max-w-[240px] sm:max-w-[360px]">
-                        <div class="flex flex-wrap justify-end gap-1.5">
-                            <button id="btnGroundSouth" class="bg-slate-950/80 hover:bg-slate-800 border border-slate-800 text-xs px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 text-amber-300 shadow">
-                                <i class="fa-solid fa-compass"></i> 南
-                            </button>
-                            <button id="btnGroundEast" class="bg-slate-950/80 hover:bg-slate-800 border border-slate-800 text-xs px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 text-indigo-300 shadow">
-                                <i class="fa-solid fa-arrow-left"></i> 東
-                            </button>
-                            <button id="btnGroundWest" class="bg-slate-950/80 hover:bg-slate-800 border border-slate-800 text-xs px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 text-rose-300 shadow">
-                                <i class="fa-solid fa-arrow-right"></i> 西
-                            </button>
-                            <button id="btnGroundZenith" class="bg-slate-950/80 hover:bg-slate-800 border border-slate-800 text-xs px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 text-cyan-300 shadow">
-                                <i class="fa-solid fa-arrow-up"></i> 天頂
-                            </button>
-                            <!-- 3D全画面表示ボタン（最後に配置） -->
-                            <button data-fullscreen-button="viewer-3d" class="bg-slate-900 border border-slate-700 hover:bg-slate-800 text-xs px-2.5 py-1.5 rounded-lg transition flex items-center gap-1.5 text-slate-100 shadow">
-                                <i class="fa-solid fa-expand"></i> 全画面表示
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- ↓↓↓ 追加：アニメーション再生・速度ボタン（右下） ↓↓↓ -->
-                    <div class="absolute bottom-16 right-14 z-10 flex flex-wrap items-center gap-2 bg-slate-950/80 p-1.5 rounded-xl border border-slate-800 shadow backdrop-blur-md">
-                        <button id="playBtn" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow text-xs">
-                            <i class="fa-solid fa-play" id="playIcon"></i>
-                            <span id="playText">月を公転</span>
-                        </button>
-                        <button id="playEarthBtn" class="bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-black px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow text-xs">
-                            <i class="fa-solid fa-play" id="playEarthIcon"></i>
-                            <span id="playEarthText">地球を自転</span>
-                        </button>
-                        <div class="flex bg-slate-900 p-1 rounded-lg border border-slate-800 text-xs">
-                            <button id="speed-025" class="px-2 py-1 rounded transition text-slate-400 hover:text-white">0.25x</button>
-                            <button id="speed-05" class="px-2 py-1 rounded transition text-slate-400 hover:text-white">0.5x</button>
-                            <button id="speed-10" class="px-2 py-1 rounded transition bg-slate-800 text-amber-300 font-bold">1.0x</button>
-                            <button id="speed-20" class="px-2 py-1 rounded transition text-slate-400 hover:text-white">2.0x</button>
-                        </div>
-                    </div>
-
-                    <!-- ズームコントロール -->
-                    <div id="zoomControls" class="absolute bottom-16 right-3 z-10 flex flex-col gap-1.5 bg-slate-950/80 p-1.5 rounded-xl border border-slate-800 shadow backdrop-blur-md">
-                        <button id="btnZoomIn" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition shadow text-lg" title="拡大">
-                            <i class="fa-solid fa-plus"></i>
-                        </button>
-                        <button id="btnZoomOut" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition shadow text-lg" title="縮小">
-                            <i class="fa-solid fa-minus"></i>
-                        </button>
-                    </div>
-
-                    <!-- Three.js Canvas Container -->
-                    <div id="canvas3d-container" class="w-full flex-1 rounded-xl overflow-hidden relative cursor-grab active:cursor-grabbing">
-                        <div id="loadingOverlay" class="absolute inset-0 flex items-center justify-center bg-slate-950 z-20">
-                            <div class="flex flex-col items-center gap-2 text-amber-400">
-                                <i class="fa-solid fa-spinner fa-spin text-3xl"></i>
-                                <span class="text-sm font-bold">3Dモデルを準備中...</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 方角と状態のサマリーバー -->
-                    <div class="mt-2 flex flex-wrap items-center justify-between text-xs sm:text-sm bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/80 gap-2 relative z-10">
-                        <div class="flex items-center gap-3">
-                            <span class="bg-indigo-900/50 text-indigo-300 px-2.5 py-1 rounded border border-indigo-700/50">
-                                月齢: <span id="moonAgeVal" class="font-bold text-amber-300">0.0</span> 日目
-                            </span>
-                            <span class="bg-emerald-900/50 text-emerald-300 px-2.5 py-1 rounded border border-emerald-700/50">
-                                地球の時刻: <span id="timeVal" class="font-bold text-amber-300">18:00</span> (<span id="timeNameVal">夕方</span>)
-                            </span>
-                        </div>
-                        <div class="text-slate-300 text-xs sm:text-sm flex items-center gap-3">
-                            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-orange-500 inline-block"></span> 太陽</span>
-                            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-blue-500 inline-block"></span> 地球</span>
-                            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span> 観測者</span>
-                            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-slate-300 inline-block"></span> 月</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 地球から見た月の見え方 Panel -->
-                <div id="viewer-moon" class="lg:col-span-5 bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between shadow-xl relative overflow-hidden">
-                    <div class="flex items-center justify-between gap-2 border-b border-slate-800/80 pb-2">
-                        <div class="flex items-center gap-2 min-w-0">
-                            <i class="fa-solid fa-eye text-emerald-400 text-lg shrink-0"></i>
-                            <h2 class="font-bold text-base md:text-lg text-slate-100 truncate">
-                                地球から見える月の姿
-                            </h2>
-                        </div>
-                        <!-- 全画面表示ボタン：通常時・全画面時ともにヘッダー行内に固定し、
-                             位置がずれないようにする -->
-                        <button id="moonFullscreenBtn" data-fullscreen-button="viewer-moon" class="shrink-0 bg-slate-900 border border-slate-700 hover:bg-slate-800 text-xs px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 text-slate-100 shadow">
-                            <i class="fa-solid fa-expand"></i> 全画面表示
-                        </button>
-                    </div>
-
-                    <!-- 月のリアルタイムレンダリング -->
-                    <div class="moon-display-area my-4 flex flex-col items-center justify-center relative flex-1">
-                        
-                        <!-- 月相バッジを左上に移動 -->
-                        <div class="absolute top-0 left-2 z-20">
-                            <span id="phaseBadge" class="bg-amber-400/20 text-amber-300 border border-amber-400/30 px-3 py-1 rounded-full text-xs sm:text-sm font-black shadow-lg">
-                                新月（しんげつ）
-                            </span>
-                        </div>
-
-                        <div id="skyBg" class="w-48 h-48 md:w-56 md:h-56 rounded-full border-4 border-slate-800 flex items-center justify-center relative shadow-2xl overflow-hidden transition-colors duration-500 bg-slate-950">
-                            <!-- 星の背景 -->
-                            <div class="absolute inset-0 opacity-60 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
-                            <!-- 2D Canvas -->
-                            <canvas id="moonPhaseCanvas" width="200" height="200" class="w-36 h-36 md:w-44 md:h-44 z-10 drop-shadow-[0_0_15px_rgba(253,224,71,0.3)]"></canvas>
-                            <!-- 地平線ライン -->
-                            <div id="horizonLine" class="absolute bottom-0 inset-x-0 h-10 bg-emerald-950/40 border-t border-emerald-500/30 flex items-center justify-center text-xs text-emerald-300/80 font-bold">
-                                地平線（地面）
-                            </div>
-                        </div>
-
-                        <!-- 空の方角ガイド -->
-                        <div class="mt-3 flex items-center justify-center gap-6 text-sm text-slate-300 font-bold">
-                            <span class="flex items-center gap-1.5"><i class="fa-solid fa-compass text-rose-400"></i> 方角: <span id="directionText" class="text-amber-300 font-black">南の空</span></span>
-                            <span class="flex items-center gap-1.5"><i class="fa-solid fa-mountain text-emerald-400"></i> 高さ: <span id="altitudeText" class="text-amber-300 font-black">高く見える</span></span>
-                        </div>
-                    </div>
-
-                    <!-- 簡単解説カード -->
-                    <div class="bg-slate-950/80 border border-slate-800 p-3.5 rounded-xl text-xs sm:text-sm leading-relaxed text-slate-300 flex flex-col gap-1.5">
-                        <div class="flex items-center gap-1.5 text-amber-300 font-bold">
-                            <i class="fa-solid fa-lightbulb"></i>
-                            <span id="explanationTitle">月の特徴</span>
-                        </div>
-                        <p id="explanationBody" class="text-slate-300">
-                            太陽と同じ方向にあるため、地球からは影の側が見え、月が見えません。
-                        </p>
-                    </div>
-
-                    <div id="moonFullscreenControls" class="hidden absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex-wrap items-center justify-center gap-2 bg-slate-950/90 p-2 rounded-xl border border-slate-700 shadow-2xl backdrop-blur-md w-[max-content]">
-                        <button id="fsPlayBtn" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black px-4 py-2 rounded-lg transition flex items-center gap-1.5 shadow text-sm">
-                            <i class="fa-solid fa-play" id="fsPlayIcon"></i>
-                            <span id="fsPlayText">月を公転</span>
-                        </button>
-                        <button id="fsPlayEarthBtn" class="bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-black px-4 py-2 rounded-lg transition flex items-center gap-1.5 shadow text-sm">
-                            <i class="fa-solid fa-play" id="fsPlayEarthIcon"></i>
-                            <span id="fsPlayEarthText">地球を自転</span>
-                        </button>
-                        <div class="flex bg-slate-900 p-1 rounded-lg border border-slate-800 text-sm">
-                            <button id="fs-speed-025" class="px-2.5 py-1 rounded transition text-slate-400 hover:text-white">0.25x</button>
-                            <button id="fs-speed-05" class="px-2.5 py-1 rounded transition text-slate-400 hover:text-white">0.5x</button>
-                            <button id="fs-speed-10" class="px-2.5 py-1 rounded transition bg-slate-800 text-amber-300 font-bold">1.0x</button>
-                            <button id="fs-speed-20" class="px-2.5 py-1 rounded transition text-slate-400 hover:text-white">2.0x</button>
-                        </div>
-                    </div>
-
-                </div>
+    <main
+      class="flex-1 flex flex-col p-2 md:p-4 max-w-7xl w-full mx-auto gap-4"
+    >
+      <!-- ===== 1. 観察モード (OBSERVE TAB) ===== -->
+      <section id="view-observe" class="flex-1 flex flex-col gap-4">
+        <!-- 視点ビューワー（上下/左右分割） -->
+        <div
+          class="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1 min-h-[440px]"
+        >
+          <!-- 宇宙視点 / 観測者視点 (3D Three.js Visualizer) -->
+          <div
+            id="viewer-3d"
+            class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl p-3 flex flex-col relative overflow-hidden shadow-xl min-h-[320px]"
+          >
+            <!-- モード切り替えタブ -->
+            <div
+              class="absolute top-3 left-3 z-20 flex bg-slate-950/80 p-1 rounded-xl border border-slate-800 shadow backdrop-blur-md"
+            >
+              <button
+                id="btnViewSpace"
+                class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-indigo-600 text-white flex items-center gap-1.5 shadow"
+              >
+                <i class="fa-solid fa-earth-americas"></i> 宇宙視点
+              </button>
+              <button
+                id="btnViewGround"
+                class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition text-slate-400 hover:text-white flex items-center gap-1.5 hover:bg-slate-800"
+              >
+                <i class="fa-solid fa-person"></i> 観測者視点
+              </button>
             </div>
 
-            <!-- コントロールパネル -->
-            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 flex flex-col gap-4 shadow-lg">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    
-                    <!-- ① 月の公転 -->
-                    <div class="bg-slate-950/60 border border-slate-800/80 p-3.5 rounded-xl flex flex-col gap-3">
-                        <div class="flex justify-between items-center text-sm font-bold">
-                            <label for="orbitSlider" class="flex items-center gap-1.5 text-amber-300">
-                                <i class="fa-solid fa-arrows-spin text-base"></i>
-                                <span>1. 月の位置（公転・月齢）</span>
-                            </label>
-                            <span class="bg-amber-400/10 text-amber-300 px-2.5 py-0.5 rounded border border-amber-400/20 text-xs sm:text-sm font-black">
-                                <span id="orbitDaysDisplay" class="text-sm sm:text-base font-black">0.0</span> / 29.5 日
-                            </span>
-                        </div>
-                        
-                        <!-- モード切り替えボタンは下部に移動したため削除 -->
-
-                        <input id="orbitSlider" type="range" min="0" max="29.5" step="0.1" value="14.8" 
-                               class="w-full h-3 bg-slate-800 rounded-lg appearance-none cursor-pointer mt-2">
-                        <div class="flex justify-between text-xs text-slate-400 px-1 font-bold">
-                            <button id="btnAge0" class="hover:text-amber-300 transition">新月 (0)</button>
-                            <button id="btnAge7" class="hover:text-amber-300 transition">上弦 (7.4)</button>
-                            <button id="btnAge14" class="hover:text-amber-300 transition">満月 (14.8)</button>
-                            <button id="btnAge22" class="hover:text-amber-300 transition">下弦 (22.1)</button>
-                            <button id="btnAge29" class="hover:text-amber-300 transition">新月 (29.5)</button>
-                        </div>
-                    </div>
-
-                    <!-- ② 地球の自転 -->
-                    <div class="bg-slate-950/60 border border-slate-800/80 p-3.5 rounded-xl flex flex-col gap-3">
-                        <div class="flex justify-between items-center text-sm font-bold">
-                            <label for="timeSlider" class="flex items-center gap-1.5 text-emerald-300">
-                                <i class="fa-solid fa-clock text-base"></i>
-                                <span>2. 地球の時刻（自転）</span>
-                            </label>
-                            <span class="bg-emerald-400/10 text-emerald-300 px-2.5 py-0.5 rounded border border-emerald-400/20 text-xs sm:text-sm font-black">
-                                <span id="timeDisplay" class="text-sm sm:text-base font-black">00:00</span>
-                            </span>
-                        </div>
-                        <input id="timeSlider" type="range" min="0" max="24" step="0.5" value="0" 
-                               class="w-full h-3 bg-slate-800 rounded-lg appearance-none cursor-pointer mt-2">
-                        <div class="flex justify-between text-xs text-slate-400 px-1 font-bold">
-                            <button id="btnTime0" class="hover:text-emerald-300 transition">夜中 0時</button>
-                            <button id="btnTime6" class="hover:text-emerald-300 transition">朝 6時</button>
-                            <button id="btnTime12" class="hover:text-emerald-300 transition">昼 12時</button>
-                            <button id="btnTime18" class="hover:text-emerald-300 transition">夕 18時</button>
-                            <button id="btnTime24" class="hover:text-emerald-300 transition">夜中 24時</button>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- 移動してきたモード切り替え & 説明 -->
-                <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800/80 pt-3">
-                    <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs sm:text-sm w-full md:w-auto">
-                        <button id="btnOrbitMoon" class="px-5 py-2 rounded-lg bg-slate-700 text-white font-bold transition shadow">月が動く(太陽・地球は固定)</button>
-                        <button id="btnOrbitSun" class="px-5 py-2 rounded-lg text-slate-400 hover:text-white transition">太陽が動く(月・地球は固定)</button>
-                    </div>
-
-                    <div class="text-xs sm:text-sm text-slate-400 flex items-center gap-2">
-                        <i class="fa-solid fa-circle-info text-blue-400 text-base"></i>
-                        <span>月が新月から次の新月まで満ち欠けする周期（朔望月）は<b>約29.5日</b>です。</span>
-                    </div>
-                </div>
+            <!-- 観測者視点用のサブモード -->
+            <div
+              id="groundSubModeToggle"
+              class="absolute top-14 left-3 z-20 hidden flex-row gap-1 bg-slate-950/80 p-1 rounded-xl border border-slate-800 shadow backdrop-blur-md"
+            >
+              <button
+                id="btnGroundFP"
+                class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-emerald-600 text-white flex items-center gap-1.5 shadow"
+              >
+                <i class="fa-solid fa-person"></i> 見回す
+              </button>
+              <button
+                id="btnGroundOV"
+                class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition text-slate-400 hover:text-white flex items-center gap-1.5 hover:bg-slate-800"
+              >
+                <i class="fa-solid fa-panorama"></i> 軌道(模式図)
+              </button>
             </div>
 
-        </section>
-
-        <!-- ===== 2. 月相ずかん (GALLERY TAB) ===== -->
-        <section id="view-gallery" class="hidden flex-1 flex-col gap-4">
-            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 md:p-6 shadow-xl flex flex-col gap-6">
-                <div class="border-b border-slate-800 pb-3 flex justify-between items-center flex-wrap gap-2">
-                    <div>
-                        <h2 class="text-xl font-black text-amber-300 flex items-center gap-2">
-                            <i class="fa-solid fa-book-bookmark"></i>
-                            <span>月の形と名前ずかん</span>
-                        </h2>
-                        <p class="text-xs sm:text-sm text-slate-400 mt-1">カードをタップすると、その月齢の場所に移動して観察できます！</p>
-                    </div>
-                </div>
-
-                <!-- 図鑑グリッド -->
-                <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <!-- Dynamic Cards -->
-                </div>
+            <!-- 操作ヒント -->
+            <div
+              class="absolute bottom-20 left-3 z-10 flex items-center gap-1.5 bg-slate-950/80 border border-slate-800 px-3 py-1.5 rounded-xl backdrop-blur-md shadow"
+              id="dragHintLabel"
+            >
+              <i
+                class="fa-solid fa-arrows-up-down-left-right text-indigo-400 text-sm"
+              ></i>
+              <span class="text-xs sm:text-sm font-bold text-slate-200"
+                >見回す</span
+              >
             </div>
-        </section>
 
-        <!-- ===== 3. クイズモード (QUIZ TAB) ===== -->
-        <section id="view-quiz" class="hidden flex-1 flex-col gap-4">
-            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 md:p-6 shadow-xl flex flex-col gap-6 max-w-3xl mx-auto w-full">
-                <div class="border-b border-slate-800 pb-3 flex justify-between items-center">
-                    <div>
-                        <h2 class="text-xl font-black text-amber-300 flex items-center gap-2">
-                            <i class="fa-solid fa-graduation-cap"></i>
-                            <span>満ち欠けマスタークイズ</span>
-                        </h2>
-                        <p class="text-xs sm:text-sm text-slate-400 mt-1">学習した知識をためしてみよう！全5問！</p>
-                    </div>
-                    <div class="bg-slate-950 px-3.5 py-2 rounded-xl border border-slate-800 text-xs sm:text-sm font-bold text-emerald-400">
-                        スコア: <span id="quizScoreDisplay" class="text-lg text-amber-300 font-black">0</span> / 5
-                    </div>
+            <!-- 宇宙用視点プリセットボタン -->
+            <div
+              id="presetSpace"
+              class="absolute top-3 right-3 z-20 flex flex-col items-end gap-1.5 max-w-[240px] sm:max-w-[420px]"
+            >
+              <div class="flex flex-wrap justify-end gap-1.5">
+                <button
+                  id="btnPresetSunLeft"
+                  class="bg-slate-950/80 hover:bg-slate-800 border border-slate-800 text-xs px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 text-amber-300 shadow"
+                >
+                  <i class="fa-solid fa-arrow-left"></i> 太陽左
+                </button>
+                <button
+                  id="btnPresetSunRight"
+                  class="bg-slate-950/80 hover:bg-slate-800 border border-slate-800 text-xs px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 text-amber-300 shadow"
+                >
+                  <i class="fa-solid fa-arrow-right"></i> 太陽右
+                </button>
+                <button
+                  id="btnPresetTopLeft"
+                  class="bg-slate-950/80 hover:bg-slate-800 border border-slate-800 text-xs px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 text-cyan-300 shadow"
+                >
+                  <i class="fa-solid fa-arrow-down"></i> 真上(左)
+                </button>
+                <button
+                  id="btnPresetTopRight"
+                  class="bg-slate-950/80 hover:bg-slate-800 border border-slate-800 text-xs px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 text-cyan-300 shadow"
+                >
+                  <i class="fa-solid fa-arrow-down"></i> 真上(右)
+                </button>
+                <button
+                  id="btnRays"
+                  class="bg-slate-950/80 hover:bg-slate-800 border border-slate-800 text-xs px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 text-amber-300 shadow"
+                >
+                  <i class="fa-solid fa-sun"></i> 光ガイド
+                </button>
+                <!-- 3D全画面表示ボタン（リセットの左に配置） -->
+                <button
+                  data-fullscreen-button="viewer-3d"
+                  class="bg-slate-900 border border-slate-700 hover:bg-slate-800 text-xs px-2.5 py-1.5 rounded-lg transition flex items-center gap-1.5 text-slate-100 shadow"
+                >
+                  <i class="fa-solid fa-expand"></i> 全画面表示
+                </button>
+                <button
+                  id="btnResetCamera"
+                  class="bg-slate-950/80 hover:bg-slate-800 border border-slate-800 text-xs px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 text-slate-300 shadow"
+                >
+                  <i class="fa-solid fa-arrow-rotate-left"></i> リセット
+                </button>
+              </div>
+            </div>
+
+            <!-- 観測者用視点プリセットボタン -->
+            <div
+              id="presetGround"
+              class="absolute top-3 right-3 z-10 hidden flex-col items-end gap-1.5 max-w-[240px] sm:max-w-[360px]"
+            >
+              <div class="flex flex-wrap justify-end gap-1.5">
+                <button
+                  id="btnGroundSouth"
+                  class="bg-slate-950/80 hover:bg-slate-800 border border-slate-800 text-xs px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 text-amber-300 shadow"
+                >
+                  <i class="fa-solid fa-compass"></i> 南
+                </button>
+                <button
+                  id="btnGroundEast"
+                  class="bg-slate-950/80 hover:bg-slate-800 border border-slate-800 text-xs px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 text-indigo-300 shadow"
+                >
+                  <i class="fa-solid fa-arrow-left"></i> 東
+                </button>
+                <button
+                  id="btnGroundWest"
+                  class="bg-slate-950/80 hover:bg-slate-800 border border-slate-800 text-xs px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 text-rose-300 shadow"
+                >
+                  <i class="fa-solid fa-arrow-right"></i> 西
+                </button>
+                <button
+                  id="btnGroundZenith"
+                  class="bg-slate-950/80 hover:bg-slate-800 border border-slate-800 text-xs px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 text-cyan-300 shadow"
+                >
+                  <i class="fa-solid fa-arrow-up"></i> 天頂
+                </button>
+                <!-- 3D全画面表示ボタン（最後に配置） -->
+                <button
+                  data-fullscreen-button="viewer-3d"
+                  class="bg-slate-900 border border-slate-700 hover:bg-slate-800 text-xs px-2.5 py-1.5 rounded-lg transition flex items-center gap-1.5 text-slate-100 shadow"
+                >
+                  <i class="fa-solid fa-expand"></i> 全画面表示
+                </button>
+              </div>
+            </div>
+
+            <!-- ↓↓↓ 追加：アニメーション再生・速度ボタン（右下） ↓↓↓ -->
+            <div
+              class="absolute bottom-16 right-14 z-10 flex flex-wrap items-center gap-2 bg-slate-950/80 p-1.5 rounded-xl border border-slate-800 shadow backdrop-blur-md"
+            >
+              <button
+                id="playBtn"
+                class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow text-xs"
+              >
+                <i class="fa-solid fa-play" id="playIcon"></i>
+                <span id="playText">月を公転</span>
+              </button>
+              <button
+                id="playEarthBtn"
+                class="bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-black px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow text-xs"
+              >
+                <i class="fa-solid fa-play" id="playEarthIcon"></i>
+                <span id="playEarthText">地球を自転</span>
+              </button>
+              <div
+                class="flex bg-slate-900 p-1 rounded-lg border border-slate-800 text-xs"
+              >
+                <button
+                  id="speed-025"
+                  class="px-2 py-1 rounded transition text-slate-400 hover:text-white"
+                >
+                  0.25x
+                </button>
+                <button
+                  id="speed-05"
+                  class="px-2 py-1 rounded transition text-slate-400 hover:text-white"
+                >
+                  0.5x
+                </button>
+                <button
+                  id="speed-10"
+                  class="px-2 py-1 rounded transition bg-slate-800 text-amber-300 font-bold"
+                >
+                  1.0x
+                </button>
+                <button
+                  id="speed-20"
+                  class="px-2 py-1 rounded transition text-slate-400 hover:text-white"
+                >
+                  2.0x
+                </button>
+              </div>
+            </div>
+
+            <!-- ズームコントロール -->
+            <div
+              id="zoomControls"
+              class="absolute bottom-16 right-3 z-10 flex flex-col gap-1.5 bg-slate-950/80 p-1.5 rounded-xl border border-slate-800 shadow backdrop-blur-md"
+            >
+              <button
+                id="btnZoomIn"
+                class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition shadow text-lg"
+                title="拡大"
+              >
+                <i class="fa-solid fa-plus"></i>
+              </button>
+              <button
+                id="btnZoomOut"
+                class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition shadow text-lg"
+                title="縮小"
+              >
+                <i class="fa-solid fa-minus"></i>
+              </button>
+            </div>
+
+            <!-- Three.js Canvas Container -->
+            <div
+              id="canvas3d-container"
+              class="w-full flex-1 rounded-xl overflow-hidden relative cursor-grab active:cursor-grabbing"
+            >
+              <div
+                id="loadingOverlay"
+                class="absolute inset-0 flex items-center justify-center bg-slate-950 z-20"
+              >
+                <div class="flex flex-col items-center gap-2 text-amber-400">
+                  <i class="fa-solid fa-spinner fa-spin text-3xl"></i>
+                  <span class="text-sm font-bold">3Dモデルを準備中...</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 方角と状態のサマリーバー -->
+            <div
+              class="mt-2 flex flex-wrap items-center justify-between text-xs sm:text-sm bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/80 gap-2 relative z-10"
+            >
+              <div class="flex items-center gap-3">
+                <span
+                  class="bg-indigo-900/50 text-indigo-300 px-2.5 py-1 rounded border border-indigo-700/50"
+                >
+                  月齢:
+                  <span id="moonAgeVal" class="font-bold text-amber-300"
+                    >0.0</span
+                  >
+                  日目
+                </span>
+                <span
+                  class="bg-emerald-900/50 text-emerald-300 px-2.5 py-1 rounded border border-emerald-700/50"
+                >
+                  地球の時刻:
+                  <span id="timeVal" class="font-bold text-amber-300"
+                    >18:00</span
+                  >
+                  (<span id="timeNameVal">夕方</span>)
+                </span>
+              </div>
+              <div
+                class="text-slate-300 text-xs sm:text-sm flex items-center gap-3"
+              >
+                <span class="flex items-center gap-1"
+                  ><span
+                    class="w-3 h-3 rounded-full bg-orange-500 inline-block"
+                  ></span>
+                  太陽</span
+                >
+                <span class="flex items-center gap-1"
+                  ><span
+                    class="w-3 h-3 rounded-full bg-blue-500 inline-block"
+                  ></span>
+                  地球</span
+                >
+                <span class="flex items-center gap-1"
+                  ><span
+                    class="w-3 h-3 rounded-full bg-rose-500 inline-block"
+                  ></span>
+                  観測者</span
+                >
+                <span class="flex items-center gap-1"
+                  ><span
+                    class="w-3 h-3 rounded-full bg-slate-300 inline-block"
+                  ></span>
+                  月</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- 地球から見た月の見え方 Panel -->
+          <div
+            id="viewer-moon"
+            class="lg:col-span-5 bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between shadow-xl relative overflow-hidden"
+          >
+            <div
+              class="flex items-center justify-between gap-2 border-b border-slate-800/80 pb-2"
+            >
+              <div class="flex items-center gap-2 min-w-0">
+                <i
+                  class="fa-solid fa-eye text-emerald-400 text-lg shrink-0"
+                ></i>
+                <h2
+                  class="font-bold text-base md:text-lg text-slate-100 truncate"
+                >
+                  地球から見える月の姿
+                </h2>
+              </div>
+              <button
+                id="moonFullscreenBtn"
+                data-fullscreen-button="viewer-moon"
+                class="shrink-0 bg-slate-900 border border-slate-700 hover:bg-slate-800 text-xs px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 text-slate-100 shadow"
+              >
+                <i class="fa-solid fa-expand"></i> 全画面表示
+              </button>
+            </div>
+
+            <!-- 【追加】レイアウトを2分割するためのラッパー -->
+            <div
+              id="moonContentWrapper"
+              class="flex flex-col flex-1 min-h-0 w-full justify-center mt-2"
+            >
+              <!-- 月のリアルタイムレンダリング (左側) -->
+              <div
+                class="moon-display-area my-2 flex flex-col items-center justify-center relative flex-1"
+              >
+                <div class="absolute top-0 left-2 z-20">
+                  <span
+                    id="phaseBadge"
+                    class="bg-amber-400/20 text-amber-300 border border-amber-400/30 px-3 py-1 rounded-full text-xs sm:text-sm font-black shadow-lg"
+                  >
+                    新月（しんげつ）
+                  </span>
                 </div>
 
-                <!-- クイズ本体コンテナ -->
-                <div id="quizContainer" class="flex flex-col gap-6 my-2">
-                    <div class="bg-slate-950/80 border border-slate-800 p-5 rounded-2xl flex flex-col gap-3">
-                        <div class="flex items-center justify-between text-xs sm:text-sm text-indigo-400 font-bold">
-                            <span id="quizQuestionNum">第 1 問</span>
-                            <span class="bg-indigo-950 px-2.5 py-1 rounded border border-indigo-800 text-xs">基礎レベル</span>
-                        </div>
-                        <p id="quizQuestionText" class="text-base md:text-lg font-bold text-slate-100 leading-relaxed">
-                            質問がここに表示されます...
-                        </p>
-                    </div>
-
-                    <div id="quizOptions" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <!-- Dynamic choices -->
-                    </div>
-
-                    <div id="quizFeedback" class="hidden bg-slate-800/90 border border-slate-700 p-4 rounded-xl flex flex-col gap-2">
-                        <div id="feedbackResult" class="font-black text-lg flex items-center gap-2">
-                            <!-- 正解 or 不正解 -->
-                        </div>
-                        <p id="feedbackText" class="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                            解説がここに表示されます。
-                        </p>
-                        <button id="nextQuizBtn" class="mt-2 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold py-2.5 px-4 rounded-xl text-xs sm:text-sm transition self-end flex items-center gap-1.5">
-                            <span>つぎの問題へ</span>
-                            <i class="fa-solid fa-arrow-right"></i>
-                        </button>
-                    </div>
+                <div
+                  id="skyBg"
+                  class="w-48 h-48 md:w-56 md:h-56 rounded-full border-4 border-slate-800 flex items-center justify-center relative shadow-2xl overflow-hidden transition-colors duration-500 bg-slate-950"
+                >
+                  <div
+                    class="absolute inset-0 opacity-60 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"
+                  ></div>
+                  <canvas
+                    id="moonPhaseCanvas"
+                    width="200"
+                    height="200"
+                    class="w-36 h-36 md:w-44 md:h-44 z-10 drop-shadow-[0_0_15px_rgba(253,224,71,0.3)]"
+                  ></canvas>
+                  <div
+                    id="horizonLine"
+                    class="absolute bottom-0 inset-x-0 h-10 bg-emerald-950/40 border-t border-emerald-500/30 flex items-center justify-center text-xs text-emerald-300/80 font-bold"
+                  >
+                    地平線（地面）
+                  </div>
                 </div>
 
-                <!-- クイズ完了画面 -->
-                <div id="quizComplete" class="hidden flex-col items-center justify-center py-8 text-center gap-4">
-                    <div class="text-5xl text-amber-300 font-black animate-bounce">
-                        <i class="fa-solid fa-trophy"></i>
-                    </div>
-                    <h3 id="quizResultMessage" class="text-2xl font-black text-slate-100">クイズ完了！</h3>
-                    <p class="text-sm sm:text-base text-slate-300">
-                        あなたのスコア: <span id="finalScore" class="text-2xl font-black text-amber-300">5</span> 点 / 5点満点
-                    </p>
-                    <button id="retryQuizBtn" class="mt-4 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black px-6 py-3 rounded-2xl shadow-lg transition flex items-center gap-2 text-sm sm:text-base">
-                        <i class="fa-solid fa-rotate-right"></i>
-                        <span>もういちど挑戦する</span>
+                <div
+                  class="mt-3 flex items-center justify-center gap-6 text-sm text-slate-300 font-bold"
+                >
+                  <span class="flex items-center gap-1.5"
+                    ><i class="fa-solid fa-compass text-rose-400"></i> 方角:
+                    <span id="directionText" class="text-amber-300 font-black"
+                      >南の空</span
+                    ></span
+                  >
+                  <span class="flex items-center gap-1.5"
+                    ><i class="fa-solid fa-mountain text-emerald-400"></i> 高さ:
+                    <span id="altitudeText" class="text-amber-300 font-black"
+                      >高く見える</span
+                    ></span
+                  >
+                </div>
+              </div>
+
+              <!-- 【追加】解説とコントロール (右側) -->
+              <div
+                id="moonRightPanel"
+                class="flex flex-col gap-4 justify-center"
+              >
+                <!-- 簡単解説カード -->
+                <div
+                  class="bg-slate-950/80 border border-slate-800 p-4 rounded-xl text-xs sm:text-sm leading-relaxed text-slate-300 flex flex-col gap-2 shadow-lg"
+                >
+                  <div
+                    class="flex items-center gap-1.5 text-amber-300 font-bold text-sm sm:text-base"
+                  >
+                    <i class="fa-solid fa-lightbulb"></i>
+                    <span id="explanationTitle">月の特徴</span>
+                  </div>
+                  <p id="explanationBody" class="text-slate-300">
+                    太陽と同じ方向にあるため、地球からは影の側が見え、月が見えません。
+                  </p>
+                </div>
+
+                <!-- フルスクリーン用コントロール -->
+                <div
+                  id="moonFullscreenControls"
+                  class="hidden flex-wrap items-center justify-center gap-3 bg-slate-950/90 p-3 rounded-xl border border-slate-700 shadow-xl w-full"
+                >
+                  <button
+                    id="fsPlayBtn"
+                    class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black px-4 py-2 rounded-lg transition flex items-center gap-1.5 shadow text-sm"
+                  >
+                    <i class="fa-solid fa-play" id="fsPlayIcon"></i>
+                    <span id="fsPlayText">月を公転</span>
+                  </button>
+                  <button
+                    id="fsPlayEarthBtn"
+                    class="bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-black px-4 py-2 rounded-lg transition flex items-center gap-1.5 shadow text-sm"
+                  >
+                    <i class="fa-solid fa-play" id="fsPlayEarthIcon"></i>
+                    <span id="fsPlayEarthText">地球を自転</span>
+                  </button>
+                  <div
+                    class="flex bg-slate-900 p-1 rounded-lg border border-slate-800 text-sm"
+                  >
+                    <button
+                      id="fs-speed-025"
+                      class="px-2.5 py-1 rounded transition text-slate-400 hover:text-white"
+                    >
+                      0.25x
                     </button>
+                    <button
+                      id="fs-speed-05"
+                      class="px-2.5 py-1 rounded transition text-slate-400 hover:text-white"
+                    >
+                      0.5x
+                    </button>
+                    <button
+                      id="fs-speed-10"
+                      class="px-2.5 py-1 rounded transition bg-slate-800 text-amber-300 font-bold"
+                    >
+                      1.0x
+                    </button>
+                    <button
+                      id="fs-speed-20"
+                      class="px-2.5 py-1 rounded transition text-slate-400 hover:text-white"
+                    >
+                      2.0x
+                    </button>
+                  </div>
                 </div>
+              </div>
             </div>
-        </section>
+          </div>
+        </div>
 
+        <!-- コントロールパネル -->
+        <div
+          class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 flex flex-col gap-4 shadow-lg"
+        >
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- ① 月の公転 -->
+            <div
+              class="bg-slate-950/60 border border-slate-800/80 p-3.5 rounded-xl flex flex-col gap-3"
+            >
+              <div class="flex justify-between items-center text-sm font-bold">
+                <label
+                  for="orbitSlider"
+                  class="flex items-center gap-1.5 text-amber-300"
+                >
+                  <i class="fa-solid fa-arrows-spin text-base"></i>
+                  <span>1. 月の位置（公転・月齢）</span>
+                </label>
+                <span
+                  class="bg-amber-400/10 text-amber-300 px-2.5 py-0.5 rounded border border-amber-400/20 text-xs sm:text-sm font-black"
+                >
+                  <span
+                    id="orbitDaysDisplay"
+                    class="text-sm sm:text-base font-black"
+                    >0.0</span
+                  >
+                  / 29.5 日
+                </span>
+              </div>
+
+              <!-- モード切り替えボタンは下部に移動したため削除 -->
+
+              <input
+                id="orbitSlider"
+                type="range"
+                min="0"
+                max="29.5"
+                step="0.1"
+                value="14.8"
+                class="w-full h-3 bg-slate-800 rounded-lg appearance-none cursor-pointer mt-2"
+              />
+              <div
+                class="flex justify-between text-xs text-slate-400 px-1 font-bold"
+              >
+                <button id="btnAge0" class="hover:text-amber-300 transition">
+                  新月 (0)
+                </button>
+                <button id="btnAge7" class="hover:text-amber-300 transition">
+                  上弦 (7.4)
+                </button>
+                <button id="btnAge14" class="hover:text-amber-300 transition">
+                  満月 (14.8)
+                </button>
+                <button id="btnAge22" class="hover:text-amber-300 transition">
+                  下弦 (22.1)
+                </button>
+                <button id="btnAge29" class="hover:text-amber-300 transition">
+                  新月 (29.5)
+                </button>
+              </div>
+            </div>
+
+            <!-- ② 地球の自転 -->
+            <div
+              class="bg-slate-950/60 border border-slate-800/80 p-3.5 rounded-xl flex flex-col gap-3"
+            >
+              <div class="flex justify-between items-center text-sm font-bold">
+                <label
+                  for="timeSlider"
+                  class="flex items-center gap-1.5 text-emerald-300"
+                >
+                  <i class="fa-solid fa-clock text-base"></i>
+                  <span>2. 地球の時刻（自転）</span>
+                </label>
+                <span
+                  class="bg-emerald-400/10 text-emerald-300 px-2.5 py-0.5 rounded border border-emerald-400/20 text-xs sm:text-sm font-black"
+                >
+                  <span id="timeDisplay" class="text-sm sm:text-base font-black"
+                    >00:00</span
+                  >
+                </span>
+              </div>
+              <input
+                id="timeSlider"
+                type="range"
+                min="0"
+                max="24"
+                step="0.5"
+                value="0"
+                class="w-full h-3 bg-slate-800 rounded-lg appearance-none cursor-pointer mt-2"
+              />
+              <div
+                class="flex justify-between text-xs text-slate-400 px-1 font-bold"
+              >
+                <button id="btnTime0" class="hover:text-emerald-300 transition">
+                  夜中 0時
+                </button>
+                <button id="btnTime6" class="hover:text-emerald-300 transition">
+                  朝 6時
+                </button>
+                <button
+                  id="btnTime12"
+                  class="hover:text-emerald-300 transition"
+                >
+                  昼 12時
+                </button>
+                <button
+                  id="btnTime18"
+                  class="hover:text-emerald-300 transition"
+                >
+                  夕 18時
+                </button>
+                <button
+                  id="btnTime24"
+                  class="hover:text-emerald-300 transition"
+                >
+                  夜中 24時
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 移動してきたモード切り替え & 説明 -->
+          <div
+            class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800/80 pt-3"
+          >
+            <div
+              class="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs sm:text-sm w-full md:w-auto"
+            >
+              <button
+                id="btnOrbitMoon"
+                class="px-5 py-2 rounded-lg bg-slate-700 text-white font-bold transition shadow"
+              >
+                月が動く(太陽・地球は固定)
+              </button>
+              <button
+                id="btnOrbitSun"
+                class="px-5 py-2 rounded-lg text-slate-400 hover:text-white transition"
+              >
+                太陽が動く(月・地球は固定)
+              </button>
+            </div>
+
+            <div
+              class="text-xs sm:text-sm text-slate-400 flex items-center gap-2"
+            >
+              <i class="fa-solid fa-circle-info text-blue-400 text-base"></i>
+              <span
+                >月が新月から次の新月まで満ち欠けする周期（朔望月）は<b>約29.5日</b>です。</span
+              >
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== 2. 月相ずかん (GALLERY TAB) ===== -->
+      <section id="view-gallery" class="hidden flex-1 flex-col gap-4">
+        <div
+          class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 md:p-6 shadow-xl flex flex-col gap-6"
+        >
+          <div
+            class="border-b border-slate-800 pb-3 flex justify-between items-center flex-wrap gap-2"
+          >
+            <div>
+              <h2
+                class="text-xl font-black text-amber-300 flex items-center gap-2"
+              >
+                <i class="fa-solid fa-book-bookmark"></i>
+                <span>月の形と名前ずかん</span>
+              </h2>
+              <p class="text-xs sm:text-sm text-slate-400 mt-1">
+                カードをタップすると、その月齢の場所に移動して観察できます！
+              </p>
+            </div>
+          </div>
+
+          <!-- 図鑑グリッド -->
+          <div
+            id="galleryGrid"
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+          >
+            <!-- Dynamic Cards -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== 3. クイズモード (QUIZ TAB) ===== -->
+      <section id="view-quiz" class="hidden flex-1 flex-col gap-4">
+        <div
+          class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 md:p-6 shadow-xl flex flex-col gap-6 max-w-3xl mx-auto w-full"
+        >
+          <div
+            class="border-b border-slate-800 pb-3 flex justify-between items-center"
+          >
+            <div>
+              <h2
+                class="text-xl font-black text-amber-300 flex items-center gap-2"
+              >
+                <i class="fa-solid fa-graduation-cap"></i>
+                <span>満ち欠けマスタークイズ</span>
+              </h2>
+              <p class="text-xs sm:text-sm text-slate-400 mt-1">
+                学習した知識をためしてみよう！全5問！
+              </p>
+            </div>
+            <div
+              class="bg-slate-950 px-3.5 py-2 rounded-xl border border-slate-800 text-xs sm:text-sm font-bold text-emerald-400"
+            >
+              スコア:
+              <span
+                id="quizScoreDisplay"
+                class="text-lg text-amber-300 font-black"
+                >0</span
+              >
+              / 5
+            </div>
+          </div>
+
+          <!-- クイズ本体コンテナ -->
+          <div id="quizContainer" class="flex flex-col gap-6 my-2">
+            <div
+              class="bg-slate-950/80 border border-slate-800 p-5 rounded-2xl flex flex-col gap-3"
+            >
+              <div
+                class="flex items-center justify-between text-xs sm:text-sm text-indigo-400 font-bold"
+              >
+                <span id="quizQuestionNum">第 1 問</span>
+                <span
+                  class="bg-indigo-950 px-2.5 py-1 rounded border border-indigo-800 text-xs"
+                  >基礎レベル</span
+                >
+              </div>
+              <p
+                id="quizQuestionText"
+                class="text-base md:text-lg font-bold text-slate-100 leading-relaxed"
+              >
+                質問がここに表示されます...
+              </p>
+            </div>
+
+            <div id="quizOptions" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <!-- Dynamic choices -->
+            </div>
+
+            <div
+              id="quizFeedback"
+              class="hidden bg-slate-800/90 border border-slate-700 p-4 rounded-xl flex flex-col gap-2"
+            >
+              <div
+                id="feedbackResult"
+                class="font-black text-lg flex items-center gap-2"
+              >
+                <!-- 正解 or 不正解 -->
+              </div>
+              <p
+                id="feedbackText"
+                class="text-xs sm:text-sm text-slate-300 leading-relaxed"
+              >
+                解説がここに表示されます。
+              </p>
+              <button
+                id="nextQuizBtn"
+                class="mt-2 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold py-2.5 px-4 rounded-xl text-xs sm:text-sm transition self-end flex items-center gap-1.5"
+              >
+                <span>つぎの問題へ</span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- クイズ完了画面 -->
+          <div
+            id="quizComplete"
+            class="hidden flex-col items-center justify-center py-8 text-center gap-4"
+          >
+            <div class="text-5xl text-amber-300 font-black animate-bounce">
+              <i class="fa-solid fa-trophy"></i>
+            </div>
+            <h3
+              id="quizResultMessage"
+              class="text-2xl font-black text-slate-100"
+            >
+              クイズ完了！
+            </h3>
+            <p class="text-sm sm:text-base text-slate-300">
+              あなたのスコア:
+              <span id="finalScore" class="text-2xl font-black text-amber-300"
+                >5</span
+              >
+              点 / 5点満点
+            </p>
+            <button
+              id="retryQuizBtn"
+              class="mt-4 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black px-6 py-3 rounded-2xl shadow-lg transition flex items-center gap-2 text-sm sm:text-base"
+            >
+              <i class="fa-solid fa-rotate-right"></i>
+              <span>もういちど挑戦する</span>
+            </button>
+          </div>
+        </div>
+      </section>
     </main>
 
-    <footer class="bg-slate-950 border-t border-slate-900 py-3 px-4 text-center text-xs text-slate-500">
-        <p>© 2026 SOU ayu 月の満ち欠け学習 - 小学生・中学生の理科学習向け</p>
+    <footer
+      class="bg-slate-950 border-t border-slate-900 py-3 px-4 text-center text-xs text-slate-500"
+    >
+      <p>© 2026 SOU ayu 月の満ち欠け学習 - 小学生・中学生の理科学習向け</p>
     </footer>
 
     <script src="three-viewer.js"></script>
     <script src="data.js"></script>
     <script src="main.js"></script>
-</body>
+  </body>
 </html>

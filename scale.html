@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>宇宙のスケール学習 - 太陽・地球・月の大きさと距離</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <!-- FontAwesome Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body
+    class="bg-slate-950 text-slate-100 min-h-screen flex flex-col overflow-x-hidden select-none"
+  >
+    <!-- ヘッダーバー -->
+    <header
+      class="bg-slate-900/90 border-b border-slate-800 sticky top-0 z-50 backdrop-blur-md px-4 py-2.5 flex flex-wrap justify-between items-center gap-2"
+    >
+      <div class="flex items-center gap-3">
+        <div
+          class="bg-indigo-600 text-white p-2 rounded-xl text-xl font-black flex items-center justify-center w-10 h-10 shadow-lg shadow-indigo-500/20"
+        >
+          <i class="fa-solid fa-rocket"></i>
+        </div>
+        <div>
+          <h1
+            class="text-lg md:text-xl font-bold tracking-wide text-amber-300 flex items-center gap-2"
+          >
+            宇宙のスケール学習
+          </h1>
+          <p class="text-xs text-slate-400 hidden sm:block">
+            〜 実際の大きさや位置関係を体感しよう 〜
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button
+          id="btnHintReopen"
+          class="bg-slate-800 hover:bg-slate-700 text-amber-300 text-xs md:text-sm font-bold w-9 h-9 rounded-xl border border-slate-700 flex items-center justify-center transition shadow"
+          title="遊び方のヒントをもう一度見る"
+        >
+          <i class="fa-solid fa-lightbulb"></i>
+        </button>
+        <a
+          href="index.html"
+          class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs md:text-sm font-bold px-4 py-2 rounded-xl border border-slate-700 flex items-center gap-1.5 transition shadow"
+        >
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>月の満ち欠けに戻る</span>
+        </a>
+      </div>
+    </header>
+
+    <main
+      class="flex-1 flex flex-col p-2 md:p-4 max-w-7xl w-full mx-auto gap-4"
+    >
+      <!-- スケール描画キャンバス -->
+      <div
+        class="bg-black border-2 border-slate-700 rounded-2xl relative overflow-hidden flex-1 min-h-[300px] shadow-2xl flex items-center justify-center"
+        id="canvasContainer"
+      >
+        <canvas
+          id="scaleCanvas"
+          class="w-full h-full cursor-grab active:cursor-grabbing touch-none"
+        ></canvas>
+
+        <!-- 倍率表示バッジ -->
+        <div
+          class="absolute top-4 left-4 bg-slate-900/80 border border-slate-700 px-3 py-1.5 rounded-lg text-xs md:text-sm font-black text-amber-300 backdrop-blur-sm shadow leading-relaxed pointer-events-none"
+        >
+          拡大倍率: <span id="zoomLabel">1</span> 倍
+          <div class="text-[10px] md:text-xs text-slate-400 font-bold">
+            見える範囲: 約<span id="viewWidthLabel">-</span>
+          </div>
+        </div>
+
+        <!-- 現在地（距離メーター）表示バッジ -->
+        <div
+          class="absolute top-4 right-4 bg-slate-900/80 border border-slate-700 px-3 py-1.5 rounded-lg text-xs md:text-sm font-black text-sky-300 backdrop-blur-sm shadow text-right leading-relaxed pointer-events-none"
+        >
+          現在地: 太陽から<span id="cameraDistLabel">0</span>
+          <div class="text-[10px] md:text-xs text-slate-400 font-bold">
+            ドラッグで移動・ホイールで拡大
+          </div>
+        </div>
+
+        <!-- ★↓↓↓ ここから追加：画面上の操作ボタン ↓↓↓★ -->
+        <div class="absolute bottom-4 right-4 flex flex-col gap-3 z-20">
+          <!-- リセット -->
+          <button
+            id="btnScaleReset"
+            class="w-10 h-10 rounded-xl bg-slate-900/80 border border-slate-700 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition text-lg shadow backdrop-blur-md self-end"
+            title="全体表示に戻す"
+          >
+            <i class="fa-solid fa-house"></i>
+          </button>
+          <!-- ズーム操作 -->
+          <div
+            class="flex bg-slate-900/80 p-1 rounded-xl border border-slate-700 shadow backdrop-blur-md"
+          >
+            <button
+              id="btnScaleZoomOut"
+              class="w-10 h-10 rounded-lg hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition text-lg"
+              title="縮小"
+            >
+              <i class="fa-solid fa-minus"></i>
+            </button>
+            <div class="w-[1px] bg-slate-700 mx-1 my-1"></div>
+            <button
+              id="btnScaleZoomIn"
+              class="w-10 h-10 rounded-lg hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition text-lg"
+              title="拡大"
+            >
+              <i class="fa-solid fa-plus"></i>
+            </button>
+          </div>
+          <!-- 移動操作 -->
+          <div
+            class="flex bg-slate-900/80 p-1 rounded-xl border border-slate-700 shadow backdrop-blur-md"
+          >
+            <button
+              id="btnScaleMoveLeft"
+              class="w-10 h-10 rounded-lg hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition text-lg"
+              title="左へ移動（太陽方向）"
+            >
+              <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <div class="w-[1px] bg-slate-700 mx-1 my-1"></div>
+            <button
+              id="btnScaleMoveRight"
+              class="w-10 h-10 rounded-lg hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition text-lg"
+              title="右へ移動（地球方向）"
+            >
+              <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+        <!-- ★↑↑↑ ここまで追加 ↑↑↑★ -->
+
+        <!-- 初回ヒントオーバーレイ -->
+        <div
+          id="hintOverlay"
+          class="absolute inset-0 z-30 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-6 text-center"
+          style="display: none"
+        >
+          <div
+            class="max-w-md bg-slate-900 border border-slate-700 rounded-2xl p-6 shadow-2xl space-y-4"
+          >
+            <p
+              class="text-amber-300 font-black text-lg flex items-center justify-center gap-2"
+            >
+              <i class="fa-solid fa-lightbulb"></i> 遊び方のヒント
+            </p>
+            <p class="text-sm text-slate-300 leading-relaxed text-left">
+              最初は地球や月が小さすぎて見えません。それだけ宇宙は広いということです。
+            </p>
+            <ul
+              class="text-sm text-slate-300 leading-relaxed text-left space-y-1.5 list-disc list-inside"
+            >
+              <li>
+                「大きさを拡大する」スライダーを右に動かすと、星が大きく見えてきます
+              </li>
+              <li>「見える位置を移動」スライダーで、見たい星に近づけます</li>
+              <li>
+                画面を指やマウスでドラッグしたり、ホイール(2本指)で拡大・縮小もできます
+              </li>
+            </ul>
+            <button
+              id="hintCloseBtn"
+              class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-5 py-2.5 rounded-xl transition w-full"
+            >
+              わかった！はじめる
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- スライドバー操作パネル -->
+      <div
+        class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col gap-4"
+      >
+        <div class="flex flex-col md:flex-row gap-6">
+          <!-- 見える位置（カメラの移動） -->
+          <div class="flex-1 flex flex-col gap-3">
+            <label
+              class="flex justify-between items-center text-sm font-bold text-emerald-400"
+            >
+              <span
+                ><i class="fa-solid fa-arrows-left-right"></i>
+                見える位置を移動</span
+              >
+              <span
+                id="posLabel"
+                class="bg-emerald-900/50 px-2 py-0.5 rounded text-xs border border-emerald-700/50"
+                >太陽</span
+              >
+            </label>
+            <input
+              id="posSlider"
+              type="range"
+              min="0"
+              max="1000"
+              step="1"
+              value="0"
+              class="w-full h-3 bg-slate-800 rounded-lg appearance-none cursor-pointer relative z-10"
+            />
+            <div
+              id="sliderTicks"
+              class="relative text-[10px] text-slate-400 font-bold h-8 mt-1 px-1"
+            ></div>
+          </div>
+
+          <!-- 大きさの拡大（ズーム） -->
+          <div class="flex-1 flex flex-col gap-3">
+            <label
+              class="flex justify-between items-center text-sm font-bold text-rose-400"
+            >
+              <span
+                ><i class="fa-solid fa-magnifying-glass-plus"></i>
+                図を拡大する</span
+              >
+              <span class="text-xs text-slate-400">※指数スケール</span>
+            </label>
+            <!-- ズームは0 (1倍) から 100 (10000倍) などを非線形で扱う -->
+            <input
+              id="zoomSlider"
+              type="range"
+              min="0"
+              max="100"
+              step="0.1"
+              value="0"
+              class="w-full h-3 bg-slate-800 rounded-lg appearance-none cursor-pointer"
+            />
+            <div
+              class="flex justify-between text-xs text-slate-400 font-bold px-1"
+            >
+              <span>宇宙全体を見る</span>
+              <span>星に近づく</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 凡例 & 太陽光線トグル -->
+        <div
+          class="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-bold text-slate-300 border-t border-slate-800 pt-3"
+        >
+          <span class="flex items-center gap-1.5">
+            <span
+              class="w-3 h-3 rounded-full inline-block"
+              style="background: #fde047"
+            ></span
+            >太陽
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span
+              class="w-3 h-3 rounded-full inline-block"
+              style="background: #a8a29e"
+            ></span
+            >水星
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span
+              class="w-3 h-3 rounded-full inline-block"
+              style="background: #fca5a5"
+            ></span
+            >金星
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span
+              class="w-3 h-3 rounded-full inline-block"
+              style="background: #3b82f6"
+            ></span
+            >地球
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span
+              class="w-3 h-3 rounded-full inline-block"
+              style="background: #d1d5db"
+            ></span
+            >月
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span
+              class="w-3 h-3 rounded-full inline-block"
+              style="background: #ef4444"
+            ></span
+            >火星
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span
+              class="w-3 h-3 rounded-full inline-block"
+              style="background: #e0b084"
+            ></span
+            >木星
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span
+              class="w-3 h-3 rounded-full inline-block"
+              style="background: #fde68a"
+            ></span
+            >土星
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span
+              class="w-3 h-3 rounded-full inline-block"
+              style="background: #7dd3fc"
+            ></span
+            >天王星
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span
+              class="w-3 h-3 rounded-full inline-block"
+              style="background: #4338ca"
+            ></span
+            >海王星
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span
+              class="w-3 h-3 rounded-full inline-block"
+              style="background: #c4b5a5"
+            ></span
+            >冥王星<span class="text-slate-500 font-normal">(準惑星)</span>
+          </span>
+          <label
+            class="flex items-center gap-1.5 md:ml-auto cursor-pointer select-none"
+          >
+            <input
+              type="checkbox"
+              id="rayToggle"
+              checked
+              class="w-4 h-4 accent-amber-400 cursor-pointer"
+            />
+            <i class="fa-solid fa-sun text-amber-300"></i>
+            太陽の光を表示
+          </label>
+        </div>
+      </div>
+    </main>
+
+    <script src="scale.js"></script>
+  </body>
+</html>
