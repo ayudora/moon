@@ -169,7 +169,6 @@ function renderSliderTicks() {
 
     btn.addEventListener("click", () => {
       updateCameraPosition(body.distance, true);
-      hideHint();
     });
 
     sliderTicksContainer.appendChild(btn);
@@ -251,7 +250,6 @@ function setZoom(newZoom, focusScreenX = null) {
 posSlider.addEventListener("input", () => {
   const rawValue = sliderValueToDistance(parseFloat(posSlider.value));
   updateCameraPosition(rawValue, false);
-  hideHint();
 });
 
 // ズームスライダーを動かした時の処理
@@ -262,7 +260,6 @@ zoomSlider.addEventListener("input", () => {
 
   // ズーム中も吸い付き判定を再計算する（ズームで範囲が変わるため）
   updateCameraPosition(cameraX, false);
-  hideHint();
 });
 
 rayToggle.addEventListener("change", () => {
@@ -329,7 +326,7 @@ function drawScaleBar(currentScale) {
   ctx.stroke();
 
   ctx.fillStyle = "rgba(255,255,255,0.9)";
-  ctx.font = "bold 12px 'M PLUS Rounded 1c', sans-serif";
+  ctx.font = "bold 14px 'M PLUS Rounded 1c', sans-serif";
   ctx.textAlign = "left";
   ctx.fillText(formatDistance(niceValue), x0, y0 - 12);
 }
@@ -380,7 +377,7 @@ function draw() {
 
     // 豆知識キャプション（画面上部中央、固定表示）
     ctx.fillStyle = "rgba(253, 224, 71, 0.85)";
-    ctx.font = "bold 12px 'M PLUS Rounded 1c', sans-serif";
+    ctx.font = "bold 14px 'M PLUS Rounded 1c', sans-serif";
     ctx.textAlign = "center";
     ctx.fillText(
       "豆知識：太陽はとても遠いので、地球に届く光はほぼ平行だとみなせます",
@@ -436,11 +433,9 @@ btnScaleZoomOut.addEventListener("click", () => {
 });
 btnScaleMoveLeft.addEventListener("click", () => {
   moveCamera(-1);
-  hideHint();
 });
 btnScaleMoveRight.addEventListener("click", () => {
   moveCamera(1);
-  hideHint();
 });
 btnScaleReset.addEventListener("click", () => {
   zoomSlider.value = 0;
@@ -529,7 +524,6 @@ canvas.addEventListener("pointerdown", (e) => {
     pinchStartDist = getPointerDistance();
     pinchStartZoom = zoom;
   }
-  hideHint();
 });
 
 canvas.addEventListener("pointermove", (e) => {
@@ -563,7 +557,6 @@ function endPointer(e) {
     const hitPlanet = findClickedPlanet(e.clientX, e.clientY);
     if (hitPlanet) {
       updateCameraPosition(hitPlanet.distance, true);
-      hideHint();
     }
   }
 
@@ -587,25 +580,9 @@ canvas.addEventListener(
     const focusScreenX = e.clientX - rect.left;
     const factor = Math.pow(1.0015, -e.deltaY);
     setZoom(zoom * factor, focusScreenX);
-    hideHint();
   },
   { passive: false },
 );
-
-// ------------------------------------------------------------------
-// 初回ヒントオーバーレイ
-// ------------------------------------------------------------------
-const hintOverlay = document.getElementById("hintOverlay");
-const hintCloseBtn = document.getElementById("hintCloseBtn");
-const btnHintReopen = document.getElementById("btnHintReopen");
-
-function hideHint() {
-  hintOverlay.style.display = "none";
-}
-hintCloseBtn.addEventListener("click", hideHint);
-btnHintReopen.addEventListener("click", () => {
-  hintOverlay.style.display = "flex";
-});
 
 // 最初の描画を実行
 resize();

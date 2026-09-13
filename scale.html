@@ -38,24 +38,17 @@
           >
             宇宙のスケール学習
           </h1>
-          <p class="text-[11px] text-slate-400 hidden sm:block leading-tight">
+          <p class="text-sm text-slate-400 hidden sm:block leading-tight">
             〜 実際の大きさや位置関係を体感しよう 〜
           </p>
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <button
-          id="btnHintReopen"
-          class="bg-slate-800 hover:bg-slate-700 text-amber-300 text-xs font-bold w-8 h-8 rounded-xl border border-slate-700 flex items-center justify-center transition shadow"
-          title="遊び方のヒントをもう一度見る"
-        >
-          <i class="fa-solid fa-lightbulb"></i>
-        </button>
         <a
           href="index.html"
-          class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold px-3 py-1.5 rounded-xl border border-slate-700 flex items-center gap-1.5 transition shadow"
+          class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-bold px-3 py-1.5 rounded-xl border border-slate-700 flex items-center gap-2 transition shadow"
         >
-          <i class="fa-solid fa-arrow-left"></i>
+          <i class="fa-solid fa-moon text-amber-300" aria-hidden="true"></i>
           <span>月の満ち欠けに戻る</span>
         </a>
       </div>
@@ -77,20 +70,20 @@
 
         <!-- 倍率表示バッジ -->
         <div
-          class="absolute top-3 left-3 bg-slate-900/80 border border-slate-700 px-2.5 py-1 rounded-lg text-xs font-black text-amber-300 backdrop-blur-sm shadow leading-tight pointer-events-none"
+          class="absolute top-3 left-3 bg-slate-900/80 border border-slate-700 px-2.5 py-1 rounded-lg text-sm font-black text-amber-300 backdrop-blur-sm shadow leading-tight pointer-events-none"
         >
           拡大倍率: <span id="zoomLabel">1</span> 倍
-          <div class="text-[10px] text-slate-400 font-bold">
+          <div class="text-sm text-slate-400 font-bold">
             見える範囲: 約<span id="viewWidthLabel">-</span>
           </div>
         </div>
 
         <!-- 現在地表示バッジ -->
         <div
-          class="absolute top-3 right-3 bg-slate-900/80 border border-slate-700 px-2.5 py-1 rounded-lg text-xs font-black text-sky-300 backdrop-blur-sm shadow text-right leading-tight pointer-events-none"
+          class="absolute top-3 right-3 bg-slate-900/80 border border-slate-700 px-2.5 py-1 rounded-lg text-sm font-black text-sky-300 backdrop-blur-sm shadow text-right leading-tight pointer-events-none"
         >
           現在地: 太陽から<span id="cameraDistLabel">0</span>
-          <div class="text-[10px] text-slate-400 font-bold">
+          <div class="text-sm text-slate-400 font-bold">
             ドラッグで移動・ホイールで拡大
           </div>
         </div>
@@ -143,62 +136,54 @@
             </button>
           </div>
         </div>
-
-        <!-- 初回ヒントオーバーレイ -->
-        <div
-          id="hintOverlay"
-          class="absolute inset-0 z-30 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 text-center"
-          style="display: none"
-        >
-          <div
-            class="max-w-md bg-slate-900 border border-slate-700 rounded-2xl p-5 shadow-2xl space-y-3"
-          >
-            <p
-              class="text-amber-300 font-black text-base flex items-center justify-center gap-2"
-            >
-              <i class="fa-solid fa-lightbulb"></i> 遊び方のヒント
-            </p>
-            <p
-              class="text-xs sm:text-sm text-slate-300 leading-relaxed text-left"
-            >
-              最初は地球や月が小さすぎて見えません。それだけ宇宙は広いということです。
-            </p>
-            <ul
-              class="text-xs sm:text-sm text-slate-300 leading-relaxed text-left space-y-1 list-disc list-inside"
-            >
-              <li>
-                「図を拡大する」スライダーを動かすと、星が大きく見えてきます
-              </li>
-              <li>「見える位置を移動」スライダーで、見たい星に近づけます</li>
-              <li>画面のドラッグや2本指ピンチ操作でも移動・拡大ができます</li>
-            </ul>
-            <button
-              id="hintCloseBtn"
-              class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-4 py-2 rounded-xl transition w-full text-xs sm:text-sm"
-            >
-              わかった！はじめる
-            </button>
-          </div>
-        </div>
       </div>
 
       <!-- 変更点②：スライドバー操作パネル（p-2.5 gap-2 に縮小、shrink-0 で押し潰れ防止） -->
       <div
+        id="scaleControls"
         class="bg-slate-900/90 border border-slate-800 rounded-2xl p-2.5 md:p-3 shadow-xl flex flex-col gap-1.5 md:gap-2 shrink-0"
       >
-        <div class="flex flex-col md:flex-row gap-2 md:gap-4">
-          <!-- 見える位置（カメラの移動） -->
-          <div class="flex-1 flex flex-col gap-1">
+        <div class="flex flex-col gap-3">
+          <!-- 上段：大きさの拡大（ズーム） -->
+          <div class="w-full flex flex-col gap-1">
             <label
-              class="flex justify-between items-center text-xs font-bold text-emerald-400"
+              class="flex justify-between items-center text-sm font-bold text-rose-400"
             >
-              <span
-                ><i class="fa-solid fa-arrows-left-right"></i>
-                見える位置を移動</span
-              >
+              <span>
+                <i class="fa-solid fa-magnifying-glass-plus"></i>
+                図を拡大する
+              </span>
+              <span class="text-sm text-slate-400">※指数スケール</span>
+            </label>
+            <input
+              id="zoomSlider"
+              type="range"
+              min="0"
+              max="100"
+              step="0.1"
+              value="0"
+              class="w-full h-2.5 bg-slate-800 rounded-lg appearance-none cursor-pointer"
+            />
+            <div
+              class="flex justify-between text-sm text-slate-400 font-bold px-1"
+            >
+              <span>太陽系を見る</span>
+              <span>星に近づく</span>
+            </div>
+          </div>
+
+          <!-- 下段：見える位置（カメラの移動） -->
+          <div class="w-full flex flex-col gap-1">
+            <label
+              class="flex justify-between items-center text-sm font-bold text-emerald-400"
+            >
+              <span>
+                <i class="fa-solid fa-arrows-left-right"></i>
+                見える位置を移動
+              </span>
               <span
                 id="posLabel"
-                class="bg-emerald-900/50 px-2 py-0.5 rounded text-[11px] border border-emerald-700/50"
+                class="bg-emerald-900/50 px-2 py-0.5 rounded text-sm border border-emerald-700/50"
                 >太陽</span
               >
             </label>
@@ -211,49 +196,20 @@
               value="0"
               class="w-full h-2.5 bg-slate-800 rounded-lg appearance-none cursor-pointer relative z-10"
             />
-            <!-- 星の名前の高さ・余白をスリム化 (h-7 mt-0.5) -->
             <div
               id="sliderTicks"
-              class="relative text-[10px] text-slate-400 font-bold h-8 mt-0.5 px-1"
+              class="relative text-sm text-slate-400 font-bold h-8 mt-0.5 px-1"
             ></div>
-          </div>
-
-          <!-- 大きさの拡大（ズーム） -->
-          <div class="flex-1 flex flex-col gap-1">
-            <label
-              class="flex justify-between items-center text-xs font-bold text-rose-400"
-            >
-              <span
-                ><i class="fa-solid fa-magnifying-glass-plus"></i>
-                図を拡大する</span
-              >
-              <span class="text-[10px] text-slate-400">※指数スケール</span>
-            </label>
-            <input
-              id="zoomSlider"
-              type="range"
-              min="0"
-              max="100"
-              step="0.1"
-              value="0"
-              class="w-full h-2.5 bg-slate-800 rounded-lg appearance-none cursor-pointer"
-            />
-            <div
-              class="flex justify-between text-[10px] text-slate-400 font-bold px-1"
-            >
-              <span>宇宙全体を見る</span>
-              <span>星に近づく</span>
-            </div>
           </div>
         </div>
 
-        <!-- 変更点③：凡例エリアをコンパクト化（pt-1.5 gap-x-2.5 gap-y-1 text-[11px]） -->
+        <!-- 変更点③：凡例エリアをコンパクト化（pt-1.5 gap-x-2.5 gap-y-1 text-sm） -->
         <div
-          class="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[11px] font-bold text-slate-300 border-t border-slate-800 pt-1.5 leading-none"
+          class="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-sm font-bold text-slate-300 border-t border-slate-800 pt-1.5 leading-none"
         >
           <span class="flex items-center gap-1"> </span>
           <label
-            class="flex items-center gap-1 md:ml-auto cursor-pointer select-none text-[11px]"
+            class="flex items-center gap-1 md:ml-auto cursor-pointer select-none text-sm"
           >
             <input
               type="checkbox"

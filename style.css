@@ -83,10 +83,6 @@ input[type="range"]::-moz-range-thumb {
   touch-action: none;
 }
 
-#hintOverlay {
-  transition: opacity 0.2s ease;
-}
-
 /* アニメーション */
 @keyframes pulse-glow {
   0%,
@@ -310,5 +306,80 @@ body.fullscreen-active {
   /* 3D画面の大枠もそれに合わせて高さを確保する */
   #viewer-3d {
     min-height: 380px !important;
+  }
+}
+/* スケール学習：拡大スライダーのつまみを赤系に */
+#zoomSlider {
+  --scale-thumb-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='%23fb7185' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 21c-1.1 0-2-.7-2.6-1.7L2.2 6.8C1.2 5 2.5 2.5 4.7 2.5h14.6c2.2 0 3.5 2.5 2.5 4.3l-7.2 12.5c-.6 1-1.5 1.7-2.6 1.7z'/%3E%3C/svg%3E");
+}
+
+/* スケール学習：移動スライダーのつまみを緑系に */
+#posSlider {
+  --scale-thumb-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='%2334d399' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 21c-1.1 0-2-.7-2.6-1.7L2.2 6.8C1.2 5 2.5 2.5 4.7 2.5h14.6c2.2 0 3.5 2.5 2.5 4.3l-7.2 12.5c-.6 1-1.5 1.7-2.6 1.7z'/%3E%3C/svg%3E");
+}
+
+/* Chrome・Edge・Safari */
+#zoomSlider::-webkit-slider-thumb,
+#posSlider::-webkit-slider-thumb {
+  background-image: var(--scale-thumb-image);
+}
+
+/* Firefox */
+#zoomSlider::-moz-range-thumb,
+#posSlider::-moz-range-thumb {
+  background-image: var(--scale-thumb-image);
+}
+/* スケール学習：操作パネルの文字を読みやすくする */
+
+/* 「図を拡大する」「見える位置を移動」 */
+#scaleControls > div:first-child > div > label {
+  font-size: 16px;
+  line-height: 1.5;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+
+/* 「※指数スケール」 */
+#scaleControls > div:first-child > div > label > span:last-child {
+  font-size: 14px;
+}
+
+/* 「地球（中心）」などの移動先表示 */
+#scaleControls #posLabel {
+  font-size: 13px;
+}
+
+/* 「太陽系を見る」「星に近づく」 */
+#scaleControls #zoomSlider + div {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* 惑星目盛り：2段分の高さを確保 */
+#scaleControls #sliderTicks {
+  height: 50px;
+  margin-top: 6px;
+}
+
+#scaleControls #sliderTicks button {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+/* JavaScriptで指定される2段目の位置を上書き */
+#scaleControls #sliderTicks button:nth-child(even) {
+  top: 26px !important;
+}
+
+/* 「太陽光を表示」 */
+#scaleControls > div:last-child label {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* 狭い画面では操作名を少し控えめに */
+@media (max-width: 767px) {
+  #scaleControls > div:first-child > div > label {
+    font-size: 14px;
   }
 }
