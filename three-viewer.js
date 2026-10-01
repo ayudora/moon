@@ -580,8 +580,40 @@ window.ThreeViewer = (function () {
     updateAllViews();
   }
 
+  // 観測者視点「見回す」の地面透過を切り替える
+  function setGroundTransparency(enabled) {
+    const canUse =
+      state.viewMode === "ground" && state.groundMode === "firstPerson";
+    const active = canUse && enabled;
+
+    if (groundPlateMesh) {
+      const material = groundPlateMesh.material;
+      material.transparent = active;
+      material.opacity = active ? 0.2 : 1;
+      material.depthWrite = !active;
+      material.needsUpdate = true;
+    }
+
+    const controls = document.getElementById("groundTransparencyControls");
+    if (controls) {
+      controls.style.display = canUse ? "flex" : "none";
+    }
+
+    const button = document.getElementById("btnGroundTransparency");
+    if (button) {
+      button.textContent = active ? "地面を透過：ON" : "地面を透過：OFF";
+      button.setAttribute("aria-pressed", String(active));
+    }
+  }
+
+  function toggleGroundTransparency() {
+    if (!groundPlateMesh) return;
+    setGroundTransparency(!groundPlateMesh.material.transparent);
+  }
+
   function setGroundMode(mode) {
     state.groundMode = mode;
+    setGroundTransparency(false);
     const btnFP = document.getElementById("btnGroundFP");
     const btnOV = document.getElementById("btnGroundOV");
     const presetGround = document.getElementById("presetGround");
@@ -905,6 +937,7 @@ window.ThreeViewer = (function () {
     zoomCamera: zoomCamera,
     setViewMode: setViewMode,
     setGroundMode: setGroundMode,
+    toggleGroundTransparency: toggleGroundTransparency,
     setPresetView: setPresetView,
     setGroundPreset: setGroundPreset,
     resetCamera: resetCamera,

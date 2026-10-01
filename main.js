@@ -739,6 +739,7 @@ const EventBinder = {
       btnViewGround: () => ThreeViewer.setViewMode("ground"),
       btnGroundFP: () => ThreeViewer.setGroundMode("firstPerson"),
       btnGroundOV: () => ThreeViewer.setGroundMode("overview"),
+      btnGroundTransparency: () => ThreeViewer.toggleGroundTransparency(),
       btnRays: ThreeViewer.toggleSunRays,
       playBtn: togglePlay,
       fsPlayBtn: togglePlay,
