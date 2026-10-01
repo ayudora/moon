@@ -371,7 +371,7 @@ function draw() {
       screenY - Math.sin(-angle) * rayLength * currentScale,
     );
 
-    ctx.strokeStyle = "rgba(253, 224, 71, 0.55)";
+    ctx.strokeStyle = "rgba(253, 224, 71, 0.25)";
     ctx.lineWidth = 1.5;
     ctx.stroke();
 
